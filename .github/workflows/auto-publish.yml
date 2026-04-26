@@ -1,0 +1,57 @@
+name: Auto-publish scheduled blog posts
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Daily at 8am ET (12 UTC)
+  workflow_dispatch: {}     # Allow manual trigger
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for posts to publish
+        id: check
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "Today: $TODAY"
+          CHANGED=0
+
+          for file in content/blog/*/index.mdoc; do
+            # Skip if no draft: true
+            if ! grep -q "^draft: true" "$file"; then
+              continue
+            fi
+
+            # Extract publishedDate
+            PUB_DATE=$(grep "^publishedDate:" "$file" | sed "s/publishedDate: *'//;s/'//")
+            if [ -z "$PUB_DATE" ]; then
+              continue
+            fi
+
+            # Compare dates (string comparison works for YYYY-MM-DD)
+            if [ "$PUB_DATE" \<= "$TODAY" ]; then
+              echo "Publishing: $file (date: $PUB_DATE)"
+              sed -i "s/^draft: true/draft: false/" "$file"
+              CHANGED=$((CHANGED + 1))
+            fi
+          done
+
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Total posts published: $CHANGED"
+
+      - name: Commit and push
+        if: steps.check.outputs.changed != '0'
+        run: |
+          git config user.name "UWC Auto-Publisher"
+          git config user.email "hello@upstate-web.com"
+          git add content/blog/
+          git commit -m "Auto-publish $(git diff --cached --name-only | wc -l | tr -d ' ') scheduled blog post(s)
+
+          Posts published on $(date -u +%Y-%m-%d) by auto-publish workflow."
+          git push

@@ -1,0 +1,204 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import NewsletterSignup from '../components/NewsletterSignup.astro'
+
+const checklistSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'Website Audit Checklist for SC Small Businesses',
+  description: 'A 5-point checklist to audit your website\'s speed, mobile experience, Google presence, security, and contact accessibility.',
+  step: [
+    { '@type': 'HowToStep', position: 1, name: 'Check your page speed', text: 'Test your site with Google PageSpeed Insights and aim for a score above 70.' },
+    { '@type': 'HowToStep', position: 2, name: 'Test mobile responsiveness', text: 'Open your site on your phone and check that everything is readable and tappable.' },
+    { '@type': 'HowToStep', position: 3, name: 'Audit your Google Business Profile', text: 'Claim, verify, and complete every field in your Google Business Profile.' },
+    { '@type': 'HowToStep', position: 4, name: 'Verify SSL certificate', text: 'Check that your site loads with HTTPS and shows the padlock icon.' },
+    { '@type': 'HowToStep', position: 5, name: 'Check contact accessibility', text: 'Make sure your phone number and email are visible, clickable, and on every page.' },
+  ],
+}
+---
+<PublicLayout title="Free Website Audit Checklist" description="Check your site's speed, SEO, mobile experience, and local search presence in 5 minutes. Built for SC small businesses." schema={checklistSchema}>
+  <section class="py-8 max-w-3xl">
+    <p class="text-xs font-medium text-[#B85C38] uppercase tracking-wider mb-2">Free resource</p>
+    <h1 class="text-3xl md:text-4xl font-bold mb-4">Website Audit Checklist</h1>
+    <p class="text-lg text-[#1A1814]/60 mb-8">
+      Five things to check on your website right now. Takes about 5 minutes. No tools needed — just your phone and a browser.
+    </p>
+  </section>
+
+  <section class="max-w-3xl space-y-8 mb-12">
+    <!-- Check 1 -->
+    <div class="border border-[#1A1814]/10 rounded-xl p-6 md:p-8">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">Page speed</h2>
+          <p class="text-[#1A1814]/60 mb-4">Slow sites lose visitors. Google says 53% of mobile users leave if a page takes more than 3 seconds to load.</p>
+          <div class="bg-[#1A1814]/5 rounded-lg p-4 mb-4">
+            <p class="text-sm font-semibold mb-2">How to test:</p>
+            <ol class="text-sm text-[#1A1814]/70 space-y-1 list-decimal list-inside">
+              <li>Go to <strong>pagespeed.web.dev</strong> on your computer</li>
+              <li>Enter your website URL</li>
+              <li>Click "Analyze"</li>
+              <li>Check your <strong>mobile</strong> score (not desktop — mobile is what matters)</li>
+            </ol>
+          </div>
+          <div class="flex gap-4 text-sm">
+            <span class="text-[#4A6741]"><strong>Good:</strong> 70+ score</span>
+            <span class="text-[#B85C38]"><strong>Needs work:</strong> Below 50</span>
+            <span class="text-red-600"><strong>Problem:</strong> Below 30</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check 2 -->
+    <div class="border border-[#1A1814]/10 rounded-xl p-6 md:p-8">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">Mobile responsiveness</h2>
+          <p class="text-[#1A1814]/60 mb-4">Over 60% of searches happen on phones. If your site doesn't work on mobile, you're invisible to most potential customers.</p>
+          <div class="bg-[#1A1814]/5 rounded-lg p-4 mb-4">
+            <p class="text-sm font-semibold mb-2">How to test:</p>
+            <ol class="text-sm text-[#1A1814]/70 space-y-1 list-decimal list-inside">
+              <li>Open your website on your <strong>phone</strong> (use mobile data, not WiFi)</li>
+              <li>Can you read all text without zooming or pinching?</li>
+              <li>Can you tap buttons and links easily with your thumb?</li>
+              <li>Does the contact form work on mobile?</li>
+              <li>Do images load properly and not stretch or overlap?</li>
+            </ol>
+          </div>
+          <div class="flex gap-4 text-sm">
+            <span class="text-[#4A6741]"><strong>Good:</strong> All yes</span>
+            <span class="text-[#B85C38]"><strong>Needs work:</strong> 1-2 issues</span>
+            <span class="text-red-600"><strong>Problem:</strong> 3+ issues or can't use the site at all</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check 3 -->
+    <div class="border border-[#1A1814]/10 rounded-xl p-6 md:p-8">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">Google Business Profile</h2>
+          <p class="text-[#1A1814]/60 mb-4">Your Google Business Profile is the #1 free marketing tool for local businesses. Complete profiles get 7x more clicks than incomplete ones.</p>
+          <div class="bg-[#1A1814]/5 rounded-lg p-4 mb-4">
+            <p class="text-sm font-semibold mb-2">How to test:</p>
+            <ol class="text-sm text-[#1A1814]/70 space-y-1 list-decimal list-inside">
+              <li>Search your business name on Google</li>
+              <li>Does a <strong>business panel</strong> appear on the right side (desktop) or top (mobile)?</li>
+              <li>Are your <strong>hours</strong> correct? (Check every day, including holidays)</li>
+              <li>Is your <strong>phone number</strong> correct and clickable?</li>
+              <li>Do you have at least <strong>5 photos</strong>?</li>
+              <li>Do you have at least <strong>5 Google reviews</strong>?</li>
+              <li>Is your <strong>website URL</strong> listed?</li>
+            </ol>
+          </div>
+          <div class="flex gap-4 text-sm flex-wrap">
+            <span class="text-[#4A6741]"><strong>Good:</strong> All complete + 10+ reviews</span>
+            <span class="text-[#B85C38]"><strong>Needs work:</strong> Missing fields</span>
+            <span class="text-red-600"><strong>Problem:</strong> Not claimed or doesn't exist</span>
+          </div>
+          <p class="text-sm text-[#1A1814]/50 mt-3">
+            Don't have one? <a href="/blog/google-business-profile-guide-sc" class="text-[#B85C38] hover:underline">Read our setup guide</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check 4 -->
+    <div class="border border-[#1A1814]/10 rounded-xl p-6 md:p-8">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold flex-shrink-0">4</div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">SSL certificate (HTTPS)</h2>
+          <p class="text-[#1A1814]/60 mb-4">Google penalizes sites without HTTPS. Browsers show "Not Secure" warnings that scare away visitors. And no SSL means customer data (like contact form submissions) is sent unencrypted.</p>
+          <div class="bg-[#1A1814]/5 rounded-lg p-4 mb-4">
+            <p class="text-sm font-semibold mb-2">How to test:</p>
+            <ol class="text-sm text-[#1A1814]/70 space-y-1 list-decimal list-inside">
+              <li>Look at your website URL in the browser address bar</li>
+              <li>Does it start with <strong>https://</strong> (not http://)?</li>
+              <li>Is there a <strong>padlock icon</strong> next to the URL?</li>
+              <li>Try visiting <strong>http://</strong>yourdomain.com — does it redirect to https?</li>
+            </ol>
+          </div>
+          <div class="flex gap-4 text-sm">
+            <span class="text-[#4A6741]"><strong>Good:</strong> Padlock visible, redirects to HTTPS</span>
+            <span class="text-red-600"><strong>Problem:</strong> No padlock or "Not Secure" warning</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check 5 -->
+    <div class="border border-[#1A1814]/10 rounded-xl p-6 md:p-8">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold flex-shrink-0">5</div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">Contact information</h2>
+          <p class="text-[#1A1814]/60 mb-4">If a customer can't figure out how to reach you in 5 seconds, they'll find someone who makes it easier. Your contact info should be visible, clickable, and on every page.</p>
+          <div class="bg-[#1A1814]/5 rounded-lg p-4 mb-4">
+            <p class="text-sm font-semibold mb-2">How to test:</p>
+            <ol class="text-sm text-[#1A1814]/70 space-y-1 list-decimal list-inside">
+              <li>Can you find a <strong>phone number</strong> without scrolling? Is it clickable (tap-to-call) on mobile?</li>
+              <li>Is there a <strong>contact form</strong> that actually works? (Test it — many forms break silently)</li>
+              <li>Is your <strong>email address</strong> visible? Is it a business email (you@business.com, not a Gmail)?</li>
+              <li>Is your <strong>physical address</strong> listed (if you have a location)?</li>
+              <li>Are <strong>business hours</strong> displayed? Are they current?</li>
+            </ol>
+          </div>
+          <div class="flex gap-4 text-sm flex-wrap">
+            <span class="text-[#4A6741]"><strong>Good:</strong> All visible and clickable</span>
+            <span class="text-[#B85C38]"><strong>Needs work:</strong> Hard to find or not clickable</span>
+            <span class="text-red-600"><strong>Problem:</strong> Missing or broken contact form</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scoring -->
+  <section class="max-w-3xl mb-12">
+    <div class="bg-[#1A1814]/5 rounded-xl p-6 md:p-8">
+      <h2 class="text-xl font-bold mb-4">Your score</h2>
+      <div class="grid sm:grid-cols-3 gap-4 text-center">
+        <div class="bg-white rounded-lg p-4">
+          <p class="text-2xl font-bold text-[#4A6741]">5/5</p>
+          <p class="text-sm text-[#1A1814]/60 mt-1">Your site is in good shape. Keep it maintained.</p>
+        </div>
+        <div class="bg-white rounded-lg p-4">
+          <p class="text-2xl font-bold text-[#B85C38]">3-4/5</p>
+          <p class="text-sm text-[#1A1814]/60 mt-1">Some gaps. Worth fixing before they cost you customers.</p>
+        </div>
+        <div class="bg-white rounded-lg p-4">
+          <p class="text-2xl font-bold text-red-600">0-2/5</p>
+          <p class="text-sm text-[#1A1814]/60 mt-1">Your website is actively losing you business. Time to act.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mb-12">
+    <div class="bg-[#1A1814] text-[#F7F4EF] rounded-xl p-8 md:p-12">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Scored below 5?</h2>
+      <p class="text-[#F7F4EF]/70 mb-6 max-w-xl">
+        Tell us what you found. We'll take a look and let you know what would make the biggest difference — no charge, no pressure.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/get-started" class="inline-flex items-center justify-center px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+          Get a free assessment
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 border border-[#F7F4EF]/20 text-[#F7F4EF] font-medium rounded-lg hover:border-[#B85C38] hover:text-[#B85C38] transition-colors">
+          Just ask a question
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-3xl">
+    <NewsletterSignup source="lead-magnet" heading="Want more tips like this?" subtext="Get web design tips, SEO guides, and marketing advice for SC small businesses. No spam, unsubscribe anytime." />
+  </section>
+</PublicLayout>

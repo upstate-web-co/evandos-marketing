@@ -1,0 +1,92 @@
+---
+title: "Why your AI-built website looks like everyone else's AI-built website"
+description: >-
+  Inter font, max-width 1200, gradient hero, three-card feature grid, soft
+  shadows. Every AI-generated site looks like every other one. Here's why
+  that happens and what it takes to get past it.
+publishedDate: '2026-04-25'
+draft: false
+---
+
+Look at ten AI-generated marketing sites in a row.
+
+Inter or a near-clone for the body. Centered max-width-six-something layout, generally 1200 pixels wide. Hero with a gradient — purple to blue, blue to teal, occasionally a brave orange to pink. Three-card feature grid below the hero. Soft shadow on the cards. Rounded corners — `rounded-xl` if the model thinks it's being modern, `rounded-2xl` if it's been told to be premium. Sticky nav with a backdrop blur. CTA button in the brand color, even if there isn't really a brand color.
+
+That's the AI-website default in 2026. Wix has it. Framer AI has it. B12 has it. UENI has it. Every "describe your business and we'll build you a site" tool has it. Even the tools that promise to be different have it. They have it because the tool has it.
+
+And if your site looks like that, your site looks like a hundred million other sites that look like that.
+
+## Why this happens
+
+It's not laziness. It's math.
+
+A modern image or text model has been trained on a billion examples of websites. Asked to generate "a clean modern site for a coffee shop," it returns the statistical center of the distribution — the design that minimizes its prediction error against every coffee shop site it's ever seen. That's exactly what the math is optimizing for. It is doing what you asked.
+
+The problem is that "clean modern site for a coffee shop" is not actually what you want. What you want is a site that looks like *your* coffee shop, which is the opposite of the statistical center. You want a site that someone walking past wouldn't mistake for any other coffee shop in your city. The model can't give you that, because the model doesn't know what your coffee shop is. It only knows what coffee shops in general are.
+
+The way out is not "use a better model." The way out is *named choices*.
+
+## The way out
+
+Instead of asking the model to generate "a clean modern site," you give it specific constraints — narrow ones — and let it generate inside the channel.
+
+Concretely, that means picking:
+
+- A typography pairing. Not "a modern sans-serif." A specific pairing of two specific fonts that go together with a specific reason — say, a tall warm display font for headings paired with a workhorse text font for body. There are dozens of pairings the design world has converged on. The list is finite and well-documented. Pick one for a reason and put it in the prompt.
+- A palette. Not "warm tones." A specific set of hex values that hit specific contrast ratios for specific surfaces — body text, accent, success state, error state. Brand pieces shouldn't change at runtime; they should be selected once, deliberately, and used everywhere.
+- A layout pattern. Not "modern layout." A specific pattern: editorial column with generous whitespace; magazine-style asymmetric grid; mobile-first stack with carefully designed nav drawers; single-page scroll with sticky section anchors. Each pattern has a reason it exists and a kind of business it suits.
+- A motion vocabulary. Not "smooth animations." A specific stance: no motion except where it's earned; subtle micro-interactions on hover; full transition choreography on page change. Motion is a tone of voice. Pick one.
+
+When all four of those are named explicitly in the prompt — not described in the abstract, but named with specific choices and specific references — the model still generates, but inside a much narrower space. The output is no longer the statistical center. It is the statistical center of *the space you defined*.
+
+## What we actually do
+
+This is the part of our process that we spent the most time on, because it's where every cheap "AI builds your website" tool fails.
+
+When a new client comes through our questionnaire, they pick five reference sites they admire and two reference sites they explicitly don't want to be like. We ask them why for each one. Then our system extracts a structured signature from each reference — the typography pairing, the palette, the layout pattern, the hero shape, the navigation style, the motion stance, the imagery treatment. About forty-seven dimensions total. The signatures are extracted automatically by reading the site's HTML and CSS, but the meaning is human-curated — we tell the system what to look for.
+
+We also keep a curated library of design exemplars. Ninety-eight hand-picked examples across twenty-three industries — SaaS, retail, hospitality, professional services, e-commerce, social media, design agencies, all the obvious categories and a few less obvious ones. Each entry in the library is annotated the same way as the references. The library exists so that when a client says "I want something that feels like *Aesop* but for a chiropractor," we can find the chiropractor-shaped sites that share Aesop's editorial restraint and use them as anchors for the prompt.
+
+Then the system generates three design candidates. Each candidate is grounded in a named typography pairing from the library, a named palette derived from the references, and a named layout pattern that fits the brand's content shape. The candidates are visibly different from each other — not three flavors of the same site. They sit in three different design neighborhoods.
+
+The client picks one. The pick is then injected into every downstream prompt the system generates — not just the design phase, but the build phase, the Claude Code prompts that write the homepage components, the marketing copy generators, the case study tone setters. The whole project descends from the picked direction, not from the model's defaults.
+
+## The fail-safe — visual differentiation scoring
+
+The other half of the system runs in the opposite direction.
+
+When a site goes live, we run a scoring agent against our own portfolio. The question it answers: does this new site look distinctly different from the last five sites we've shipped? If two of our recent sites look interchangeable, that's a brand-blur problem for both clients. We catch it before launch, regenerate, and try again.
+
+The scoring agent isn't sophisticated — it reads the site's signature and compares it to the recent portfolio's signatures using weighted similarity. Anything above a threshold gets flagged. If the client signs off anyway because they genuinely want something close to a recent direction, that's their call. The score still gets recorded so the next client's candidates can avoid the same neighborhood.
+
+This is the unglamorous half of the work. Most of the visible value is in the candidate generation. Most of the systemic value — the thing that keeps every site we ship looking deliberate and individually owned — is in the differentiation check.
+
+## Why this matters
+
+Three reasons.
+
+**Your customers see hundreds of sites.** Every potential customer of yours has been to a hundred coffee shop websites, a hundred boutique websites, a hundred medical practice websites. They have an internal, mostly-unconscious model of what those sites look like. A site that fits the model gets pattern-matched and forgotten. A site that breaks the model — even slightly — gets remembered. That's the work a website is supposed to do. The undifferentiated AI default cannot do it.
+
+**Your competitors run AI builders too.** If your local competition uses Wix or Framer AI or a generic agency that runs AI builders, you all start from the same statistical center. Whoever moves first into a deliberately chosen design neighborhood wins the recognizability fight. Whoever stays in the center loses it.
+
+**"Clean and modern" without specificity is a euphemism.** When a client tells us they want "a clean modern site," we treat it as a request to be helped with the choice — not a finished requirement. There is no such thing as the clean modern site for your business. There is the clean modern site that fits your business, your customers, your tone, the way you want to feel when somebody walks in your door. That choice has to be made by somebody. The somebody is either the client, the agency, or the model. Of those three, the model is the worst at it.
+
+## The honest tradeoff
+
+This requires the client to actually have references they admire.
+
+A small percentage of clients say some version of "make it modern, just decide for me." Our gentle pushback is that making the choice is part of branding — it's the choice that makes the brand readable to the rest of the world. We help them find references. We send them through a tour of relevant sites. We narrate why each one works. But we don't decide for them in the absence of any input, because the decision is the brand and the brand isn't ours to make.
+
+For clients who do come with references, the process goes fast. The first three candidates are usually one of them dead on the picked direction, with the other two close-but-different so the client can feel the contrast. Most clients pick within a day. Most picks survive into production unchanged.
+
+## The test
+
+Here's the test of whether your website was built with care or built with defaults.
+
+Go find ten websites in your industry. Open them in tabs. Hide the logos and the company names. Now look at them as a row.
+
+Does yours stand out, or does it blur into the rest? If you can't find yours in the row without reading the company names, you got the average. The model gave you what the model gives everyone. The work to differentiate hasn't been done.
+
+This is why AI-built websites all look the same. The math says they should. The math is doing what it's optimized for. Getting different output requires changing what you optimize against — and that's a process question, not a model question.
+
+If your existing site failed the test, you know what the next conversation is.

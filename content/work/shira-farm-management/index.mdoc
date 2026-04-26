@@ -1,0 +1,76 @@
+---
+title: 'Shira: Livestock Farm Management SaaS'
+client: Shira
+industry: Agriculture / SaaS
+description: >-
+  Built a multi-module livestock farm management platform with 90+ models,
+  2,839 tests, M-Pesa payments, offline-first PWA, and Swahili + English
+  language support for the Kenya market.
+challenge: >-
+  Livestock farmers in Kenya manage complex operations across multiple
+  dimensions: animal records, breeding cycles, health tracking, feed
+  management, financial transactions, and market sales. Most use paper
+  records or disconnected spreadsheets. The solution needed to work on
+  low-end Android devices with intermittent connectivity, support M-Pesa
+  payments natively, and operate in both English and Swahili.
+solution: >-
+  We built Shira as a multi-tenant Django SaaS with a React 19 PWA frontend.
+  19 Claude Code skills guided development across 8 phases. The architecture
+  emphasizes tenant isolation (row-level via BaseTenantViewSet), offline
+  capability (service worker + local storage sync), and mobile-first design
+  (tested on 3-year-old Android devices). M-Pesa integration via Daraja API
+  handles all payment processing. The system spans 90+ models across 12
+  Django apps.
+results:
+  - 2,839 tests with 90.47% code coverage
+  - 90+ data models across 12 Django apps
+  - 19 Claude Code skills created during development
+  - M-Pesa STK push + C2B callback integration
+  - Offline-first PWA for field use on low-connectivity farms
+  - Swahili + English bilingual interface
+testimonial:
+  quote: >-
+    The system handles everything from breeding records to market sales.
+    Farmers who were using paper notebooks now have complete digital records
+    accessible from their phones, even without internet.
+  name: Shira Team
+  role: Product Owner
+liveUrl: 'https://shira.farm'
+ogImage: /images/work/shira-hero.jpg
+screenshots:
+  - /images/work/shira-dashboard.jpg
+  - /images/work/shira-animals.jpg
+  - /images/work/shira-mobile.jpg
+services:
+  - design
+  - development
+  - ecommerce
+timeline: 8 phases
+publishedDate: '2026-04-05'
+featured: false
+draft: true
+---
+
+Shira is a comprehensive livestock farm management SaaS built for the Kenya market. It's the most technically ambitious project in the UWC portfolio — 90+ models, 2,839 tests, and a PWA that works offline on low-end devices.
+
+## What We Built
+
+**Animal Management** — Complete lifecycle tracking: birth records, breeding cycles, health events, vaccinations, weight tracking, and lineage trees. Every animal has a digital profile accessible from the farmer's phone.
+
+**Financial Management** — Income and expense tracking with M-Pesa integration. Farmers receive payments via STK push and the system automatically records transactions. Financial reports show profitability by animal, by herd, and by farm.
+
+**Feed & Inventory** — Track feed purchases, consumption rates, and inventory levels. Automated alerts when feed stock runs low. Cost-per-animal calculations based on actual feed consumption.
+
+**Market & Sales** — List animals for sale, track buyer interactions, manage sales transactions. Integration with local livestock market cycles.
+
+**Health & Veterinary** — Vaccination schedules, health event logging, treatment records. Automated reminders for upcoming vaccinations based on breed-specific protocols.
+
+## Technical Architecture
+
+The **multi-tenant architecture** uses row-level isolation — every query is scoped to the authenticated tenant via BaseTenantViewSet. This means a single deployment serves all farms, but data is strictly isolated.
+
+The **PWA frontend** (React 19) caches critical data locally via service workers. Farmers can view animal records, log events, and queue transactions while offline. When connectivity returns, the queue syncs automatically.
+
+**M-Pesa integration** uses the Daraja API for STK push (customer-initiated) and C2B callbacks (business-received). Transaction reconciliation runs via Celery background tasks.
+
+The project generated **19 reusable Claude Code skills** that now inform all UWC app development, from Django multitenancy patterns to signal architecture and Celery task design.

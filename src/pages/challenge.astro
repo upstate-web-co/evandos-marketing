@@ -1,0 +1,153 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+---
+
+<PublicLayout
+  title="5-Day Website Readiness Challenge — Upstate Web Co"
+  description="Free 5-day email challenge: audit your online presence, test your site, and find out what your competitors are doing better. No sales pitch — just clarity."
+>
+  <section class="bg-[#FBF8F4] py-16 px-6">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-sm font-medium text-[#B85C38] uppercase tracking-wide mb-3">Free 5-Day Challenge</p>
+      <h1 class="text-3xl md:text-4xl font-bold text-[#1A1814] leading-tight">
+        Is your website helping your business — or holding it back?
+      </h1>
+      <p class="mt-4 text-lg text-[#1A1814]/70">
+        Five days. Five quick checks. By the end, you'll know exactly where you stand — and what to do next.
+      </p>
+    </div>
+  </section>
+
+  <!-- What You'll Do -->
+  <section class="py-12 px-6">
+    <div class="max-w-2xl mx-auto">
+      <div class="space-y-6">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold text-sm">1</div>
+          <div>
+            <h3 class="font-semibold text-[#1A1814]">Google yourself</h3>
+            <p class="text-sm text-[#1A1814]/60">Search what your customers search. What do they actually see? You might be surprised.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold text-sm">2</div>
+          <div>
+            <h3 class="font-semibold text-[#1A1814]">Test your site on your phone</h3>
+            <p class="text-sm text-[#1A1814]/60">60% of your customers visit on mobile. We'll show you exactly how your site performs.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold text-sm">3</div>
+          <div>
+            <h3 class="font-semibold text-[#1A1814]">Can customers buy or book at midnight?</h3>
+            <p class="text-sm text-[#1A1814]/60">If your website can't take orders or bookings after hours, you're losing revenue while you sleep.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold text-sm">4</div>
+          <div>
+            <h3 class="font-semibold text-[#1A1814]">What are your competitors doing?</h3>
+            <p class="text-sm text-[#1A1814]/60">A quick look at what the business across town has that you don't.</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#B85C38] text-white flex items-center justify-center font-bold text-sm">5</div>
+          <div>
+            <h3 class="font-semibold text-[#1A1814]">Your report card + what to do next</h3>
+            <p class="text-sm text-[#1A1814]/60">A clear summary of where you stand and practical next steps — whether you work with us or not.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signup Form -->
+  <section class="bg-[#FBF8F4] py-12 px-6">
+    <div class="max-w-md mx-auto">
+      <h2 class="text-xl font-bold text-[#1A1814] text-center mb-2">Start the challenge</h2>
+      <p class="text-sm text-[#1A1814]/60 text-center mb-6">One email per day for 5 days. No spam. Unsubscribe anytime.</p>
+
+      <form id="challenge-form" class="space-y-3">
+        <input type="text" name="name" placeholder="Your name" required
+          class="w-full rounded-lg border border-[#E8E4DE] px-4 py-2.5 text-sm focus:border-[#B85C38] focus:outline-none focus:ring-2 focus:ring-[#B85C38]/20" />
+        <input type="email" name="email" placeholder="Your email" required
+          class="w-full rounded-lg border border-[#E8E4DE] px-4 py-2.5 text-sm focus:border-[#B85C38] focus:outline-none focus:ring-2 focus:ring-[#B85C38]/20" />
+        <input type="text" name="business_name" placeholder="Your business name (optional)"
+          class="w-full rounded-lg border border-[#E8E4DE] px-4 py-2.5 text-sm focus:border-[#B85C38] focus:outline-none focus:ring-2 focus:ring-[#B85C38]/20" />
+        <!-- Honeypot -->
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" />
+        <button type="submit" id="challenge-submit"
+          class="w-full rounded-lg bg-[#B85C38] text-white font-medium px-6 py-3 text-sm hover:bg-[#A04D2E]">
+          Start the free challenge
+        </button>
+        <div id="challenge-status" class="hidden rounded-lg p-3 text-center text-sm"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section class="py-8 px-6 text-center">
+    <p class="text-sm text-[#1A1814]/50 max-w-md mx-auto">
+      No credit card. No sales calls. Just 5 emails that help you understand your online presence. If you want help after, we're here.
+    </p>
+  </section>
+</PublicLayout>
+
+<script>
+  const form = document.getElementById('challenge-form') as HTMLFormElement
+  const status = document.getElementById('challenge-status') as HTMLDivElement
+  const btn = document.getElementById('challenge-submit') as HTMLButtonElement
+
+  // Capture UTM from URL
+  const params = new URLSearchParams(window.location.search)
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    // Honeypot check
+    const honeypot = (form.elements.namedItem('website') as HTMLInputElement)?.value
+    if (honeypot) return
+
+    btn.disabled = true
+    btn.textContent = 'Signing up...'
+
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim()
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim()
+    const businessName = (form.elements.namedItem('business_name') as HTMLInputElement).value.trim()
+
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name,
+          source: 'challenge',
+          business_name: businessName,
+          utm_source: params.get('utm_source') || 'challenge',
+          utm_medium: params.get('utm_medium') || 'organic',
+          utm_campaign: params.get('utm_campaign') || '5day-challenge',
+        }),
+      })
+
+      if (res.ok) {
+        form.classList.add('hidden')
+        status.textContent = 'You\'re in! Check your email — Day 1 starts now.'
+        status.className = 'rounded-lg bg-green-50 p-4 text-center text-sm text-green-700'
+        status.classList.remove('hidden')
+
+        // Fire conversion pixels
+        if (typeof (window as any).fbq === 'function') (window as any).fbq('track', 'Subscribe')
+        if (typeof (window as any).gtag === 'function') (window as any).gtag('event', 'sign_up', { method: 'challenge' })
+      } else {
+        throw new Error('Failed')
+      }
+    } catch {
+      status.textContent = 'Something went wrong. Please try again.'
+      status.className = 'rounded-lg bg-red-50 p-4 text-center text-sm text-red-700'
+      status.classList.remove('hidden')
+      btn.disabled = false
+      btn.textContent = 'Start the free challenge'
+    }
+  })
+</script>

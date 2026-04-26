@@ -1,0 +1,127 @@
+---
+/**
+ * Exit-intent popup that shows the lead magnet offer when a visitor is about to leave.
+ * Desktop: triggers on mouse moving toward top of viewport.
+ * Mobile: triggers on scroll-up after scrolling down 40% of the page.
+ * Only shows once per session (uses sessionStorage).
+ * Does not show if visitor already subscribed (uwc_subscribed cookie).
+ */
+---
+<div id="exit-popup" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none" role="dialog" aria-label="Special offer">
+  <div id="exit-overlay" class="absolute inset-0 bg-[#1A1814]/60 backdrop-blur-sm"></div>
+  <div class="relative bg-[#F7F4EF] rounded-2xl p-8 max-w-md w-full shadow-2xl">
+    <button id="exit-close" class="absolute top-4 right-4 text-[#1A1814]/40 hover:text-[#1A1814] transition-colors" aria-label="Close popup">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="text-center">
+      <div class="w-12 h-12 bg-[#B85C38]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold mb-2">Before you go...</h2>
+      <p class="text-sm text-[#1A1814]/60 mb-6">
+        Grab our free <strong>Website Audit Checklist</strong> — check your site's speed, SEO, mobile experience, and local search presence in 5 minutes.
+      </p>
+    </div>
+
+    <form id="exit-form" class="space-y-3">
+      <input
+        type="email"
+        name="email"
+        placeholder="Your email address"
+        required
+        class="w-full px-4 py-3 border border-[#1A1814]/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B85C38]/50 bg-white"
+      />
+      <button
+        type="submit"
+        class="w-full px-4 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors text-sm"
+      >
+        Get the free checklist
+      </button>
+    </form>
+    <p id="exit-success" class="text-center text-sm text-[#4A6741] font-medium mt-4" style="display:none">
+      Check your inbox! The checklist is on its way.
+    </p>
+    <p class="text-xs text-[#1A1814]/30 text-center mt-4">No spam, ever. Unsubscribe anytime.</p>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    // Don't show if already subscribed or already dismissed this session
+    if (document.cookie.includes('uwc_subscribed=true')) return
+    if (sessionStorage.getItem('uwc_exit_shown')) return
+
+    var popup = document.getElementById('exit-popup')
+    var shown = false
+    var pageLoadTime = Date.now()
+    var MIN_DELAY_MS = 120000 // 2 minutes
+
+    function showPopup() {
+      if (shown) return
+      if (Date.now() - pageLoadTime < MIN_DELAY_MS) return
+      shown = true
+      sessionStorage.setItem('uwc_exit_shown', '1')
+      popup.style.display = 'flex'
+    }
+
+    // Desktop: mouse leaves toward top of viewport
+    document.addEventListener('mouseout', function(e) {
+      if (e.clientY < 10 && e.relatedTarget === null) {
+        showPopup()
+      }
+    })
+
+    // Mobile: scroll up after scrolling past 40% of page
+    var maxScroll = 0
+    var triggered = false
+    window.addEventListener('scroll', function() {
+      var scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight)
+      if (scrollPct > maxScroll) maxScroll = scrollPct
+      if (maxScroll > 0.4 && scrollPct < maxScroll - 0.15 && !triggered) {
+        triggered = true
+        showPopup()
+      }
+    }, { passive: true })
+
+    // Close handlers
+    document.getElementById('exit-close')?.addEventListener('click', function() {
+      popup.style.display = 'none'
+    })
+    document.getElementById('exit-overlay')?.addEventListener('click', function() {
+      popup.style.display = 'none'
+    })
+
+    // Form submission
+    document.getElementById('exit-form')?.addEventListener('submit', function(e) {
+      e.preventDefault()
+      var email = this.querySelector('input[name="email"]').value
+      var btn = this.querySelector('button[type="submit"]')
+      btn.textContent = 'Sending...'
+      btn.disabled = true
+
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: 'lead-magnet' })
+      })
+      .then(function(res) { return res.json() })
+      .then(function() {
+        document.getElementById('exit-form').style.display = 'none'
+        document.getElementById('exit-success').style.display = 'block'
+        document.cookie = 'uwc_subscribed=true; path=/; max-age=31536000; SameSite=Lax'
+        // Track conversion
+        if (typeof fbq === 'function') fbq('track', 'Subscribe')
+        if (typeof gtag === 'function') gtag('event', 'sign_up', { method: 'exit_intent' })
+      })
+      .catch(function() {
+        btn.textContent = 'Try again'
+        btn.disabled = false
+      })
+    })
+  })()
+</script>

@@ -1,0 +1,200 @@
+@import 'tailwindcss';
+
+/* ── Self-hosted fonts ─────────────────────────────── */
+@font-face {
+  font-family: 'DM Serif Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dm-serif-display-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ── Tailwind v4 theme tokens ──────────────────────── */
+@theme {
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --color-cream: #F7F4EF;
+  --color-charcoal: #1A1814;
+  --color-rust: #B85C38;
+  --color-rust-dark: #a04e2f;
+  --color-sage: #4A6741;
+}
+
+/* ── Full-bleed utility ────────────────────────────── */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+/* ── Scroll reveal animations ──────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stagger-children.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0s; }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 0.08s; }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 0.16s; }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 0.24s; }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 0.32s; }
+
+/* ── Nav wordmark underline ────────────────────────── */
+.nav-wordmark {
+  position: relative;
+}
+
+.nav-wordmark::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--color-rust);
+}
+
+/* ── Respect reduced motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .stagger-children > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .nav-wordmark::after {
+    transition: none;
+  }
+}
+
+/* ── Case study + blog post content styling ────────── */
+.case-study-content h2,
+.blog-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1A1814;
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(26, 24, 20, 0.1);
+  line-height: 1.3;
+}
+
+.case-study-content h3,
+.blog-content h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1A1814;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1rem;
+  border-left: 3px solid #B85C38;
+  line-height: 1.4;
+}
+
+.case-study-content p,
+.blog-content p {
+  color: rgba(26, 24, 20, 0.7);
+  line-height: 1.75;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.case-study-content strong,
+.blog-content strong {
+  color: #1A1814;
+}
+
+.case-study-content a,
+.blog-content a {
+  color: #B85C38;
+  text-decoration: none;
+}
+
+.case-study-content a:hover,
+.blog-content a:hover {
+  text-decoration: underline;
+}
+
+.case-study-content ul,
+.case-study-content ol,
+.blog-content ul,
+.blog-content ol {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.case-study-content li,
+.blog-content li {
+  color: rgba(26, 24, 20, 0.7);
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.7;
+}
+
+.case-study-content ul {
+  list-style-type: disc;
+}
+
+.case-study-content ol,
+.blog-content ol {
+  list-style-type: decimal;
+}
+
+.case-study-content blockquote,
+.blog-content blockquote {
+  border-left: 4px solid #B85C38;
+  background: rgba(184, 92, 56, 0.04);
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 1rem 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.blog-content table {
+  width: 100%;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.blog-content th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid rgba(26, 24, 20, 0.1);
+  font-weight: 600;
+}
+
+.blog-content td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(26, 24, 20, 0.05);
+}

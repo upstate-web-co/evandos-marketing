@@ -1,0 +1,16 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import TokenManager from '../../components/marketing-admin/TokenManager'
+---
+<MarketingAdminLayout title="Platform Connections">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight">Platform Connections</h1>
+    <p class="text-sm text-[#F7F4EF]/50 mt-1">
+      Configure access tokens for each social platform. Tokens are encrypted before storage.
+    </p>
+  </div>
+
+  <div class="max-w-2xl">
+    <TokenManager client:load />
+  </div>
+</MarketingAdminLayout>

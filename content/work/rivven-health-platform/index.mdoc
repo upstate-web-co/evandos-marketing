@@ -1,0 +1,84 @@
+---
+title: 'Rivven Health: Multi-Tenant Therapy Practice Platform'
+client: Rivven Health
+industry: Healthcare / SaaS
+description: >-
+  Architected a multi-tenant therapy practice management platform with
+  AI-assisted clinical workflows, secure tenant isolation, and full
+  integration stack — Stripe, Resend, Twilio, and Claude AI.
+challenge: >-
+  Therapy practices juggle booking, clinical records, billing, and client
+  communication across disconnected tools. Each tool stores data
+  separately, creating compliance risk and administrative overhead. Small
+  practices need enterprise-grade security (therapy data is sensitive) but
+  can't afford enterprise-grade software.
+solution: >-
+  We built a multi-tenant SaaS platform where each practice gets its own
+  isolated data environment. Therapists manage appointments, write
+  AI-assisted SOAP notes, send invoices, and communicate with clients —
+  all from one dashboard. Clients get a self-service portal for booking,
+  viewing records, and paying invoices. The architecture supports multiple
+  practices on a single deployment with strict cross-tenant isolation.
+results:
+  - Multi-tenant architecture with tested cross-tenant security isolation
+  - 94 automated tests at 86% code coverage
+  - AI-assisted clinical workflows (SOAP note drafting, treatment goal suggestions)
+  - Full integration stack — Stripe billing, Resend email, Twilio SMS, Claude AI
+  - Automated appointment reminders (24h email + 2h SMS)
+  - Production deployment infrastructure with Docker, Nginx, CI/CD, and daily backups
+  - Client self-service portal with JWT authentication
+services:
+  - design
+  - development
+timeline: 8 milestones
+publishedDate: '2026-04-11'
+featured: false
+draft: true
+---
+
+## The architecture challenge
+
+Building software for therapy practices isn't just a scheduling problem — it's a trust problem. Therapists handle sensitive clinical data, and their clients need to feel confident that their information is secure. Most off-the-shelf solutions either lack the security rigor or charge enterprise prices that small practices can't justify.
+
+We designed Rivven Health as a multi-tenant platform where each practice operates in complete isolation. A therapist at Practice A can never accidentally (or intentionally) access records from Practice B. This isn't just permission-based — it's enforced at the database query level, with every API request automatically scoped to the authenticated user's practice.
+
+## What we built
+
+### Secure multi-tenant foundation
+
+The platform uses a shared PostgreSQL database with tenant-scoped foreign keys. Every model inherits from a `BaseTenantModel` that automatically filters queries by practice. Cross-tenant access returns a 404 — not a 403 — so the requesting user can't even confirm whether the resource exists. This pattern is validated by 20+ dedicated security tests.
+
+### AI-assisted clinical workflows
+
+Therapists can generate SOAP note drafts from session details and get AI-suggested treatment goals based on client history. The AI integration uses Anthropic's Claude API through a service layer, with all requests logged for compliance. The frontend presents structured forms — not a generic chat box — so the AI receives properly formatted clinical context.
+
+### Appointment & communication system
+
+Booking includes real-time conflict detection with database-level locking to prevent double-booking. Appointment confirmations go out immediately via email and SMS. Automated reminders fire 24 hours (email) and 2 hours (SMS) before each session. Payment failure notifications go to practice owners. All notification delivery is tracked in an audit log.
+
+### Client portal
+
+Clients authenticate via JWT tokens (separate from staff Google OAuth) and get a read-only view of their appointments, session notes, and invoices. They can pay outstanding invoices through Stripe Checkout without needing to call the office.
+
+### Production deployment
+
+The platform ships as a Docker Compose stack (Django + Nginx + PostgreSQL + Redis + Celery) with a GitHub Actions CI/CD pipeline. Tests run on every push. Deployments are zero-downtime with health checks. Daily PostgreSQL backups with 7-day and 28-day retention.
+
+## The technical stack
+
+- **Backend:** Django 6 + Django REST Framework
+- **Frontend:** React 19 + TypeScript + Tailwind CSS 4
+- **Database:** PostgreSQL 16 with tenant-scoped queries
+- **Async:** Celery 5 + Redis 7 (reminders, billing, AI)
+- **Payments:** Stripe (subscriptions + per-session invoicing)
+- **Email:** Resend (transactional + reminders)
+- **SMS:** Twilio (appointment reminders)
+- **AI:** Anthropic Claude API (clinical note drafting)
+- **Auth:** Django Allauth (staff) + SimpleJWT (client portal)
+- **Deploy:** Docker + Nginx + GitHub Actions CI/CD
+
+## Why this matters for your business
+
+If your practice management involves sensitive client data, disconnected tools, or manual processes that eat into your day — this is the kind of platform that consolidates everything into one secure system. Your clients get a better experience (self-service booking, online payments, automated reminders), and you get time back.
+
+Every practice is different. We build the platform around how you actually work — not the other way around.

@@ -1,0 +1,178 @@
+---
+import '../../styles/global.css'
+
+const sessionToken = Astro.cookies.get('uwc_marketing_session')?.value
+if (sessionToken) {
+  try {
+    const [timestampStr] = sessionToken.split(':')
+    const timestamp = parseInt(timestampStr, 10)
+    if (!isNaN(timestamp) && Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+      return Astro.redirect('/marketing-admin/')
+    }
+  } catch {}
+}
+
+const expired = Astro.url.searchParams.get('expired') === '1'
+const error = Astro.url.searchParams.get('error')
+const next = Astro.url.searchParams.get('next') || '/marketing-admin/'
+
+const errorMessages: Record<string, string> = {
+  not_authorized: 'Your Google account is not authorized to access this admin.',
+  email_not_verified: 'Your Google email is not verified.',
+  invalid_state: 'Authentication session expired. Please try again.',
+  auth_failed: 'Google sign-in failed. Please try again.',
+  oauth_not_configured: 'Google sign-in is not configured.',
+  missing_params: 'Invalid callback. Please try again.',
+}
+const errorMsg = error ? errorMessages[error] || 'Sign-in failed. Please try again.' : null
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Marketing Admin Login — Upstate Web Co</title>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <span class="text-2xl font-bold text-gray-900 tracking-tight">Upstate Web Co</span>
+        <p class="text-sm text-gray-500 mt-1">Marketing Admin</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <h1 class="text-lg font-semibold text-gray-900 mb-1">Admin Login</h1>
+        <p class="text-sm text-gray-500 mb-6">Sign in to manage your marketing.</p>
+
+        {expired && (
+          <div class="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg px-4 py-3 mb-4">
+            Session expired. Please sign in again.
+          </div>
+        )}
+
+        {errorMsg && (
+          <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
+            {errorMsg}
+          </div>
+        )}
+
+        <div id="error-msg" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4"></div>
+
+        <!-- Google OAuth -->
+        <button
+          id="google-btn"
+          type="button"
+          class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Sign in with Google
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 my-5">
+          <div class="flex-1 h-px bg-gray-200"></div>
+          <span class="text-xs text-gray-400 uppercase tracking-wide">or</span>
+          <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+
+        <!-- Password login -->
+        <form id="login-form">
+          <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors"
+              placeholder="Enter admin password"
+            />
+          </div>
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Log In
+          </button>
+        </form>
+
+        <p class="text-center text-xs text-gray-400 mt-5">
+          Cloudflare Access email OTP also accepted.
+        </p>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-6">
+        Upstate Web Co &mdash; Protected admin area. <a href="/" class="hover:text-indigo-600 transition-colors">Back to site</a>
+      </p>
+    </div>
+
+    <script is:inline define:vars={{ nextUrl: next }}>
+      // Google OAuth
+      document.getElementById('google-btn').addEventListener('click', async function() {
+        var btn = this;
+        var errorEl = document.getElementById('error-msg');
+        btn.disabled = true;
+        errorEl.classList.add('hidden');
+        try {
+          var res = await fetch('/api/marketing-admin/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'google', next: nextUrl }),
+          });
+          var data = await res.json();
+          if (data.redirect) {
+            window.location.href = data.redirect;
+          } else {
+            errorEl.textContent = data.error || 'Failed to start Google sign-in';
+            errorEl.classList.remove('hidden');
+            btn.disabled = false;
+          }
+        } catch (err) {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.classList.remove('hidden');
+          btn.disabled = false;
+        }
+      });
+
+      // Password login
+      document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('submit-btn');
+        var errorEl = document.getElementById('error-msg');
+        var password = document.getElementById('password').value;
+        btn.disabled = true;
+        btn.textContent = 'Logging in...';
+        errorEl.classList.add('hidden');
+        try {
+          var res = await fetch('/api/marketing-admin/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: password }),
+          });
+          var data = await res.json();
+          if (res.ok) {
+            window.location.href = nextUrl;
+          } else {
+            errorEl.textContent = data.error || 'Login failed';
+            errorEl.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Log In';
+          }
+        } catch (err) {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.textContent = 'Log In';
+        }
+      });
+    </script>
+  </body>
+</html>

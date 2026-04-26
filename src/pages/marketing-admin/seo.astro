@@ -1,0 +1,14 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import SeoEditor from '../../components/marketing-admin/SeoEditor'
+---
+<MarketingAdminLayout title="SEO">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight">SEO Overrides</h1>
+    <p class="text-sm text-[#F7F4EF]/50 mt-1">
+      Set custom titles, descriptions, and JSON-LD schema per page. Overrides take priority over Keystatic frontmatter defaults.
+    </p>
+  </div>
+
+  <SeoEditor client:load />
+</MarketingAdminLayout>

@@ -1,0 +1,95 @@
+---
+title: "Hale Industrial — AI Workbench for real estate acquisitions"
+client: Hale Industrial Partners
+industry: Commercial real estate / industrial acquisitions
+description: >-
+  A workbench for a CRE acquisitions firm. Ingest listings from web scrapes,
+  PDFs, and broker email. Extract structured fields with Claude. Score every
+  property against a tunable buy-box. Draft broker outreach the analyst signs
+  and sends — never autosent. One ranked list, daily.
+challenge: >-
+  A small industrial acquisitions firm drowning in broker email, LoopNet PDFs,
+  and three separate listing sites. Every morning the team spent an hour
+  re-reading the same listings trying to remember who they'd already contacted
+  and which deals still fit the buy-box. The manual workflow meant good deals
+  slipped past — surfacing only after a competitor had already made an offer.
+  They didn't need another CRM. They needed one ranked list that arrived every
+  morning with the reading already done.
+solution: >-
+  We built Hale Industrial as an AI Workbench — a workflow-specific application
+  for one specialist role (the acquisitions analyst) rather than a general-
+  purpose tool. Pipeline: ingest listings from multiple sources → extract
+  structured fields with Claude (address, size, clear height, docks, asking
+  price, broker) → score against named search criteria with tunable weights →
+  surface a ranked list with transparent per-factor breakdown → AI drafts
+  broker outreach emails the analyst reviews, edits, and sends from their own
+  inbox. No autosend. No black-box scoring. A daily AI cost ceiling so a bug
+  can never burn the budget. Per-tenant data isolation from day one so the
+  architecture can scale if the model proves out.
+results:
+  - M1-M4 shipped in ~52 hours over three weeks (from discovery to deployed MVP)
+  - 167 automated tests covering scoring math, tenant isolation, bulk actions, and AI cost guard — including a regression test for a silent Decimal drift bug caught mid-session
+  - 225 seeded properties, 200 scored, 2 watchlists, 40 AI calls logged — a full demo tenant ready for first-day use
+  - Per-tenant daily AI spend cap set at $5/day — a bad prompt loop cannot burn more than a coffee
+  - Onboarding wizard takes a new tenant from zero to first ranked list in under 20 minutes
+  - Three-gate client signoff (Prototype → MVP → Launch) keeps scope + decision rights explicit
+testimonial:
+  quote: ""
+  name: ""
+  role: ""
+liveUrl: https://hale-industrial-marketing.pages.dev
+ogImage: /images/work/hale-industrial/og.png
+screenshots:
+  - /images/work/hale-industrial/01-dashboard.png
+  - /images/work/hale-industrial/02-properties-list.png
+  - /images/work/hale-industrial/03-property-detail.png
+  - /images/work/hale-industrial/04-watchlists.png
+  - /images/work/hale-industrial/05-ai-logs.png
+  - /images/work/hale-industrial/06-onboarding.png
+services:
+  - design
+  - development
+timeline: 3 weeks (M1-M4) + ongoing
+publishedDate: '2026-04-25'
+featured: false
+draft: false
+---
+
+Hale Industrial is a workbench for one job: industrial CRE acquisitions. Not a CRM. Not a database. Not a chatbot. A tool the firm's analyst opens every morning to see one ranked list — with the tedious reading, scoring, and drafting already done.
+
+## The workflow
+
+**Ingest.** Point Hale at a LoopNet page, a broker email inbox, a PDF folder of brochures, or an RSS feed. Each source runs on its own schedule — hourly, daily, weekly, or manual-trigger-only. Raw listings arrive as text; Hale archives the source alongside the structured row so you can always cross-check.
+
+**Extract.** Claude reads each listing and pulls structured fields: address, property type, size, clear height, loading docks, asking price, cap rate, broker contact. Every extraction gets a confidence score (0–100%). Under 75% goes to human review before entering the ranked list.
+
+**Score.** You define your buy box as a named search criteria — property types, size range, price ceiling, clear-height floor, location, rail access. You assign relative weights to each factor. Every property gets a 0–100 score with a per-factor breakdown visible on the card. The math is transparent weighted sum, not a learned black-box ranker. You can always answer "why is this #1?" in a partner meeting.
+
+**Surface.** A single ranked list, daily. Filter by price, size, state, clear height. Bulk-select to add to a watchlist, change status, or archive. Export to CSV for partner calls. Sort by confidence, score, price, or recency.
+
+**Draft.** On any property, click "Draft Email." Claude writes a short first-pass broker email in the tone you pick — professional, direct, warm, or follow-up. You edit, copy to clipboard, and send from your own email. **Hale never sends on your behalf.** Your reputation stays tied to your address. Mark the outreach sent; next draft to the same broker knows you've already reached out.
+
+## What Hale explicitly does NOT do
+
+The scope was drawn deliberately narrow. We pushed back on every ask that widened it.
+
+- **Does not send email on the user's behalf.** Autosend was requested, rejected, and will stay rejected. The human signs every outreach.
+- **Does not decide offer prices.** Hale shows asking price and cap rate; everything past that is the analyst's judgment.
+- **Does not integrate with CRMs or closing platforms.** The tool ends at "I wrote you a draft" — downstream deal-flow lives in whatever tool the firm already uses.
+- **Does not sell or share your data.** Per-tenant isolation at the data layer AND the AI-cost layer. Your listings, scores, notes, and drafts are visible only to your tenant.
+
+## Under the hood
+
+**Per-tenant AI cost ceiling.** Every Claude call is logged, and a daily spend cap is enforced before the API is hit. A bug in a prompt cannot burn more than the limit — currently $5/day per tenant. The audit log is immutable and exportable as CSV for finance.
+
+**Transparent math.** Scoring factors, weights, and per-factor scores are all visible. No learned weights. No "proprietary algorithm." You can see why every property landed where it did.
+
+**Multi-tenant from day one.** Architected to host additional tenants even while deployed as a single-client app. Future growth doesn't require a rewrite.
+
+**Three shipping gates.** Prototype (clickable UX + fake data, before any backend), MVP (the real app with rough edges, usable for real work), Launch (SOW complete, ownership transfers). Client signs off explicitly at each gate; scope stays honest.
+
+## What this case study is about
+
+This is the first project we've shipped as an **AI Workbench** — a specific product category we've been working to name. A workbench isn't an AI agent (too autonomous), isn't an AI copilot (too ambient), and isn't vertical AI SaaS (too commercial at day zero). It's a workflow tool for one specialist role, built on a shape we've seen come up repeatedly in the hiring market. Hale is the canonical example.
+
+If your team has a specialist — an analyst, a document reviewer, a recruiter, an ops lead — whose day is getting swallowed by tedious reading and drafting, and whose judgment still has to be in the loop on every decision, we can build you a workbench too.

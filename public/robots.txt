@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /marketing-admin/
+Disallow: /keystatic/
+Disallow: /api/
+
+Sitemap: https://upstate-web.com/sitemap-index.xml

@@ -1,0 +1,143 @@
+---
+export const prerender = true
+
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+import InlineChat from '../../components/chat/InlineChat'
+import PublicLayout from '../../layouts/PublicLayout.astro'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const allWork = await reader.collections.work.all()
+const caseStudies = allWork
+  .filter((item) => !item.entry.draft)
+  .sort((a, b) => {
+    const dateA = a.entry.publishedDate || ''
+    const dateB = b.entry.publishedDate || ''
+    return dateB.localeCompare(dateA)
+  })
+
+// Extract unique industries for filter tabs
+const industries = [...new Set(caseStudies.map((s) => s.entry.industry))].sort()
+
+const workSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Case Studies — Upstate Web Co.',
+  description: 'Real projects and results from Upstate Web Co. Custom websites, SaaS migrations, and marketing platforms for small businesses.',
+  url: 'https://upstate-web.com/work',
+  publisher: {
+    '@type': 'Organization',
+    name: 'Upstate Web Co.',
+    url: 'https://upstate-web.com',
+  },
+}
+---
+<PublicLayout title="Work" description="Case studies from Upstate Web Co. See how we've helped businesses with custom websites, SaaS migrations, and marketing platforms." schema={workSchema}>
+  <section class="py-8">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Work</h1>
+    <p class="text-lg text-[#1A1814]/60 max-w-2xl">
+      Real projects, real results. Every site is custom-built — no two look the same, because no two businesses are the same.
+    </p>
+
+    {industries.length > 1 && (
+      <div class="flex flex-wrap gap-2 mt-6" id="industry-filters">
+        <button data-filter="all" class="px-3 py-1.5 text-sm font-medium rounded-full bg-[#B85C38] text-white transition-colors">All</button>
+        {industries.map((industry) => (
+          <button data-filter={industry} class="px-3 py-1.5 text-sm font-medium rounded-full bg-[#1A1814]/5 text-[#1A1814]/60 hover:bg-[#B85C38]/10 hover:text-[#B85C38] transition-colors">{industry}</button>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <section class="py-8">
+    <div class="grid sm:grid-cols-2 gap-6 md:gap-8" id="work-grid">
+      {caseStudies.map((study) => (
+        <a href={`/work/${study.slug}`} data-industry={study.entry.industry} class="group block rounded-2xl overflow-hidden border border-[#1A1814]/10 hover:border-[#B85C38]/30 hover:shadow-lg transition-all duration-300 bg-white">
+          {study.entry.ogImage ? (
+            <div class="aspect-video overflow-hidden bg-[#1A1814]/5">
+              <img
+                src={study.entry.ogImage}
+                alt={study.entry.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div class="aspect-video bg-gradient-to-br from-[#B85C38]/8 to-[#1A1814]/5 flex items-center justify-center">
+              <span class="text-4xl font-bold text-[#B85C38]/15">{study.entry.client}</span>
+            </div>
+          )}
+          <div class="p-5 md:p-6">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="text-xs font-medium text-[#B85C38] bg-[#B85C38]/10 px-2 py-0.5 rounded">{study.entry.industry}</span>
+              {study.entry.timeline && (
+                <span class="text-xs text-[#1A1814]/40">{study.entry.timeline}</span>
+              )}
+            </div>
+            <h2 class="text-lg font-bold mb-2 group-hover:text-[#B85C38] transition-colors duration-200">{study.entry.title}</h2>
+            <p class="text-sm text-[#1A1814]/60 mb-4 line-clamp-2">{study.entry.description}</p>
+            {study.entry.results.length > 0 && (
+              <div class="flex flex-wrap gap-1.5">
+                {study.entry.results.slice(0, 2).map((result) => (
+                  <span class="text-xs text-[#4A6741] bg-[#4A6741]/8 px-2 py-0.5 rounded">{result}</span>
+                ))}
+                {study.entry.results.length > 2 && (
+                  <span class="text-xs text-[#1A1814]/30">+{study.entry.results.length - 2} more</span>
+                )}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {caseStudies.length === 0 && (
+    <section class="py-8">
+      <div class="border border-dashed border-[#1A1814]/20 rounded-xl p-12 text-center">
+        <p class="text-[#1A1814]/40 text-lg">Case studies coming soon.</p>
+      </div>
+    </section>
+  )}
+
+  <!-- Inline AI Chat -->
+  <section class="py-8 max-w-2xl">
+    <InlineChat
+      client:visible
+      title="Curious about a project?"
+      subtitle="Ask about our process, timelines, or what we can build for you"
+      suggestions={["Can you build something like this for me?", "What's your process?", "How much does a project like this cost?"]}
+    />
+  </section>
+
+  <section class="py-12">
+    <div class="bg-[#1A1814] text-[#F7F4EF] rounded-2xl p-8 md:p-12">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Want results like these?</h2>
+      <p class="text-[#F7F4EF]/70 mb-6 max-w-xl">
+        Tell us about your business. We'll build something worth showing off.
+      </p>
+      <a href="/get-started" class="inline-flex items-center px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+        Get started
+      </a>
+    </div>
+  </section>
+  <script>
+    const filters = document.getElementById('industry-filters')
+    const grid = document.getElementById('work-grid')
+    if (filters && grid) {
+      filters.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('button')
+        if (!btn) return
+        const filter = btn.dataset.filter
+        filters.querySelectorAll('button').forEach((b) => {
+          b.className = b === btn
+            ? 'px-3 py-1.5 text-sm font-medium rounded-full bg-[#B85C38] text-white transition-colors'
+            : 'px-3 py-1.5 text-sm font-medium rounded-full bg-[#1A1814]/5 text-[#1A1814]/60 hover:bg-[#B85C38]/10 hover:text-[#B85C38] transition-colors'
+        })
+        grid.querySelectorAll<HTMLElement>('[data-industry]').forEach((card) => {
+          card.style.display = filter === 'all' || card.dataset.industry === filter ? '' : 'none'
+        })
+      })
+    }
+  </script>
+</PublicLayout>

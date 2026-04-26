@@ -1,0 +1,286 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro'
+
+const portfolio = [
+  {
+    name: 'The Workbench Miami',
+    description: 'Class booking & membership platform for a fitness studio — schedule, waitlist, Stripe billing, AI recommendations.',
+    url: 'https://workbenchmia.com',
+  },
+  {
+    name: 'Shira',
+    description: 'Farm management platform — livestock tracking, billing, team roles, mobile-first for rural use.',
+    url: 'https://shira.farm',
+  },
+  {
+    name: 'MyChama',
+    description: 'Savings group management — contributions, loans, payments, member communication.',
+    url: 'https://mychama.app',
+  },
+]
+---
+
+<PublicLayout title="Build Your App — Upstate Web Co." description="From idea to live product. We build web applications for solopreneurs, small businesses, and startups.">
+
+  <!-- Hero -->
+  <section class="py-20 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight">We build apps that<br/>run your business</h1>
+      <p class="mt-6 text-xl text-gray-600 leading-relaxed">
+        You have an idea, a workflow, or a business that's outgrowing spreadsheets.
+        We turn it into a real product — yours to own, yours to grow.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/get-started" class="px-8 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+          Tell Us Your Idea
+        </a>
+        <a href="#who-this-is-for" class="px-8 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+          Is This for Me?
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who This Is For — 3 cards -->
+  <section id="who-this-is-for" class="py-16 px-4">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-4">Who this is for</h2>
+      <p class="text-center text-gray-500 mb-12">Every project starts with a conversation. We figure out the right approach together.</p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Solopreneur / Part-time → Full-time -->
+        <div class="border-2 border-gray-900 rounded-2xl p-6 relative overflow-hidden">
+          <div class="mb-4">
+            <div class="inline-flex items-baseline gap-1">
+              <span class="text-2xl font-black text-gray-300 line-through decoration-2">part</span>
+              <span class="text-4xl font-black text-gray-900">full</span>
+              <span class="text-lg font-medium text-gray-400">time</span>
+            </div>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Going full-time on your thing</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            You're a chef, a trainer, a craftsperson, a creator. You sell products, book appointments,
+            post content, and send invoices — all from different apps. It's time for one place that does it all.
+          </p>
+          <ul class="mt-4 text-sm text-gray-500 space-y-1">
+            <li>Online store + booking</li>
+            <li>Content & social media tools</li>
+            <li>Payments with Stripe</li>
+            <li>Customer management</li>
+          </ul>
+          <a href="/get-started" class="mt-5 inline-block text-sm font-medium text-gray-900 hover:text-gray-600">Start here →</a>
+        </div>
+
+        <!-- Platform / SaaS idea — compass on globe -->
+        <div class="border rounded-2xl p-6">
+          <div class="mb-4 relative inline-block">
+            <span class="text-5xl">🌎</span>
+            <span class="absolute -top-1 -right-2 text-2xl" style="transform: rotate(-15deg)">🧭</span>
+          </div>
+          <h3 class="font-bold text-lg mb-2">An idea that works for everyone</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            You've seen a problem that many people share — and you want to build the solution.
+            A platform where each customer gets their own account, their own data, their own experience.
+          </p>
+          <ul class="mt-4 text-sm text-gray-500 space-y-1">
+            <li>Multi-user accounts</li>
+            <li>Subscription billing</li>
+            <li>Roles & permissions</li>
+            <li>Your own brand & domain</li>
+          </ul>
+          <a href="/get-started" class="mt-5 inline-block text-sm font-medium text-gray-900 hover:text-gray-600">Start here →</a>
+        </div>
+
+        <!-- Small business operations — one store becoming two -->
+        <div class="border rounded-2xl p-6">
+          <div class="mb-4 inline-flex items-end gap-1">
+            <span class="text-3xl opacity-40">🏪</span>
+            <span class="text-lg text-gray-300">→</span>
+            <span class="text-4xl">🏪</span>
+            <span class="text-4xl">🏪</span>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Running a growing team</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Your business works — but the spreadsheets don't scale. You need a system that matches
+            how your team actually operates: tracking jobs, logging work, sending reports.
+          </p>
+          <ul class="mt-4 text-sm text-gray-500 space-y-1">
+            <li>Custom dashboards</li>
+            <li>Job & schedule tracking</li>
+            <li>Team access controls</li>
+            <li>Reports & exports</li>
+          </ul>
+          <a href="/get-started" class="mt-5 inline-block text-sm font-medium text-gray-900 hover:text-gray-600">Start here →</a>
+        </div>
+
+        <!-- Spark — creatives with ideas -->
+        <div class="border-2 border-amber-500 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute top-3 right-3">
+            <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">NEW</span>
+          </div>
+          <div class="mb-4">
+            <span class="text-4xl">⚡</span>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Spark — test your idea fast</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            You're a creative with an idea — a tool, a marketplace, a side project. You don't need a full app yet.
+            You need a working prototype to see if people want it.
+          </p>
+          <ul class="mt-4 text-sm text-gray-500 space-y-1">
+            <li>Working MVP in 2–4 weeks</li>
+            <li>Real users can sign up and use it</li>
+            <li>Payments if you need them</li>
+            <li>Upgrade to full app if it takes off</li>
+          </ul>
+          <p class="mt-3 text-xs text-amber-600 font-medium">From $1,500</p>
+          <a href="/get-started" class="mt-3 inline-block text-sm font-medium text-gray-900 hover:text-gray-600">Start here →</a>
+        </div>
+      </div>
+
+      <!-- Additional capabilities — smaller, understated -->
+      <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-gray-50 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-gray-500">Works on phones</p>
+          <p class="text-[10px] text-gray-400 mt-1">Install like an app — no app store needed</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-gray-500">Connects to what you use</p>
+          <p class="text-[10px] text-gray-400 mt-1">Stripe, email, SMS, calendars, and more</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-gray-500">Works offline</p>
+          <p class="text-[10px] text-gray-400 mt-1">Keep working without internet — syncs when you're back</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4 text-center">
+          <p class="text-xs font-medium text-gray-500">You own everything</p>
+          <p class="text-[10px] text-gray-400 mt-1">Your code, your data, your infrastructure</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process (collapsible) -->
+  <section class="py-16 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-4">How it works</h2>
+      <p class="text-center text-gray-500 mb-10">We work in clear steps. You see progress and give feedback at every stage.</p>
+
+      <div class="space-y-3">
+        <details class="bg-white rounded-xl border group">
+          <summary class="p-5 cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+              <span class="font-semibold">Discovery</span>
+            </div>
+            <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-sm text-gray-600 ml-12">
+            We learn about your business, your users, and what you need. You fill out a short questionnaire, then we have a call to go deeper. After this, you get a written plan with our recommendation.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-xl border group">
+          <summary class="p-5 cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+              <span class="font-semibold">Build</span>
+            </div>
+            <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-sm text-gray-600 ml-12">
+            We build your app in stages — the foundation first, then the features, then the polish. At the end of each stage, you see what's done and give feedback before we move on.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-xl border group">
+          <summary class="p-5 cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+              <span class="font-semibold">Test & Harden</span>
+            </div>
+            <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-sm text-gray-600 ml-12">
+            Before launch, we run a full security and performance check. We make sure your data is safe, your app is fast, and everything works on phones. You get a test version to try yourself.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-xl border group">
+          <summary class="p-5 cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+              <span class="font-semibold">Launch & Grow</span>
+            </div>
+            <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-sm text-gray-600 ml-12">
+            We deploy your app, set up your marketing site, and hand you the keys. You also get a content admin panel to manage your blog, social media, and SEO. After launch, we're here for maintenance and new features.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio -->
+  <section id="portfolio" class="py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-4">Apps we've built</h2>
+      <p class="text-center text-gray-500 mb-10">Real products, running in production, serving real users.</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        {portfolio.map(app => (
+          <a href={app.url} target="_blank" rel="noopener" class="border rounded-xl p-6 hover:border-gray-400 transition-colors block">
+            <h3 class="font-bold text-lg mb-1">{app.name}</h3>
+            <p class="text-gray-600 text-sm">{app.description}</p>
+            <span class="mt-3 inline-block text-xs font-medium text-gray-400">{app.url.replace('https://', '')} →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="py-16 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-2xl font-bold mb-4">Investment</h2>
+      <p class="text-gray-500 mb-10">You pay as we deliver — not on a clock, not upfront for the whole thing.</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+        <div class="bg-white rounded-xl border-2 border-amber-500 p-6 relative">
+          <span class="absolute -top-2.5 left-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">NEW</span>
+          <h3 class="font-semibold mb-1">Spark</h3>
+          <p class="text-2xl font-bold">$1,500–$5,000</p>
+          <p class="text-sm text-gray-500 mt-2">Working prototype in 2–4 weeks. Test your idea with real users before committing to a full build.</p>
+        </div>
+        <div class="bg-white rounded-xl border p-6">
+          <h3 class="font-semibold mb-1">Discovery</h3>
+          <p class="text-2xl font-bold">$2,000–$4,000</p>
+          <p class="text-sm text-gray-500 mt-2">We learn your business, define the plan, and give you a written architecture you own.</p>
+        </div>
+        <div class="bg-white rounded-xl border-2 border-gray-900 p-6">
+          <h3 class="font-semibold mb-1">Full Build</h3>
+          <p class="text-2xl font-bold">$8,000–$15,000</p>
+          <p class="text-sm text-gray-500 mt-2">Your app — built, tested, deployed, with a marketing site and admin panel.</p>
+        </div>
+        <div class="bg-white rounded-xl border p-6">
+          <h3 class="font-semibold mb-1">Maintain</h3>
+          <p class="text-2xl font-bold">$500–$1,500<span class="text-sm font-normal">/mo</span></p>
+          <p class="text-sm text-gray-500 mt-2">Hosting, monitoring, bug fixes, and new features as your business grows.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 px-4">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-4">Let's talk about your idea</h2>
+      <p class="text-gray-600 mb-8">
+        Tell us what you're thinking — even if it's rough. We'll get back to you within a day
+        with an honest take on what it would take.
+      </p>
+      <a href="/get-started" class="inline-block px-8 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+        Start a Conversation
+      </a>
+    </div>
+  </section>
+
+</PublicLayout>

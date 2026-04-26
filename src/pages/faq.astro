@@ -1,0 +1,115 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import NewsletterSignup from '../components/NewsletterSignup.astro'
+
+const faqs = [
+  {
+    question: 'How much does a website cost?',
+    answer: 'Our projects range from $750 to $7,500 depending on what you need. A simple single-page site starts at $750. A multi-page business website with CMS and payments starts at $1,800. A full online store starts at $3,500. Every quote is fixed — no hourly billing, no surprises.',
+  },
+  {
+    question: 'How long does it take to build a website?',
+    answer: 'A Starter site takes 1–2 weeks. A Business Website takes 2–3 weeks. An Online Store takes 3–5 weeks. These are real timelines — we don\'t pad them, and we don\'t miss them. Rush delivery is available for an additional fee.',
+  },
+  {
+    question: 'Do I own my website?',
+    answer: 'Yes, 100%. You own your code, your domain, your content, and your design. If you ever want to move to another developer or host, you take everything with you. No lock-in, no hostage situations.',
+  },
+  {
+    question: 'What if I need changes after launch?',
+    answer: 'Small text and image updates are included for the first 30 days after launch. After that, you can sign up for a monthly maintenance plan (starting at $150/mo) or request changes on an as-needed basis. You can also edit content yourself through the CMS.',
+  },
+  {
+    question: 'Do you offer monthly maintenance?',
+    answer: 'Yes. Our Maintenance plan ($150/mo) covers hosting, security updates, minor edits, and daily backups. Our Growth plan ($400/mo) adds content updates, Google Business Profile posts, and monthly SEO reports. Our Full Partner plan ($950/mo) adds ad management, A/B testing, and strategy calls.',
+  },
+  {
+    question: 'What makes you different from Wix or Squarespace?',
+    answer: 'Template builders are fine for a quick placeholder, but they come with trade-offs: slower load times, limited customization, ongoing monthly fees, and you don\'t truly own your site. We build custom sites that load in under a second, rank better on Google, and belong to you completely. No monthly template fees.',
+  },
+  {
+    question: 'Do you work with businesses outside Upstate SC?',
+    answer: 'Our home base is Greenville, and we specialize in serving Upstate SC businesses. But the web doesn\'t have borders — we work with clients anywhere who value custom-built, high-performance websites. Most of our communication happens over email and video calls regardless of location.',
+  },
+  {
+    question: 'What do I need to provide?',
+    answer: 'At minimum: your business name, logo (if you have one), the services or products you offer, and any photos you\'d like to use. If you have existing copy or brand guidelines, great — if not, we can help write content. We\'ll walk you through everything in our discovery process.',
+  },
+  {
+    question: 'Can you help with SEO and marketing?',
+    answer: 'Every site we build includes SEO fundamentals — clean code, fast load times, proper meta tags, structured data, and Google Business Profile setup. For ongoing SEO and marketing, our Growth and Full Partner monthly plans include content updates, GBP posts, SEO reports, and ad management.',
+  },
+  {
+    question: 'What\'s the payment structure?',
+    answer: '50% deposit to start, 50% on approval before launch. We send invoices through Stripe — no checks, no cash, no awkward conversations. If you need a payment plan for larger projects, let us know.',
+  },
+  {
+    question: 'What technology do you use?',
+    answer: 'We build with Astro, Tailwind CSS, and Cloudflare — the same modern stack used by high-growth tech companies. Your site loads from 300+ global edge servers, meaning it\'s fast everywhere. No WordPress, no page builders, no bloated plugins.',
+  },
+  {
+    question: 'Can I see examples of your work?',
+    answer: 'Yes! Check out our <a href="/work" class="text-[#B85C38] hover:underline">case studies</a> to see real projects we\'ve completed, including the challenges we solved and the results we delivered.',
+  },
+]
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer.replace(/<[^>]+>/g, ''),
+    },
+  })),
+}
+---
+<PublicLayout title="FAQ" description="Frequently asked questions about web design, pricing, timelines, and working with Upstate Web Co. for your small business website." schema={faqSchema}>
+  <section class="py-8">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>
+    <p class="text-lg text-[#1A1814]/60 max-w-2xl">
+      Honest answers to the questions we hear most. If yours isn't here, <a href="/contact" class="text-[#B85C38] hover:underline">ask us directly</a>.
+    </p>
+  </section>
+
+  <section class="py-8 max-w-3xl">
+    <div class="space-y-4">
+      {faqs.map((faq, i) => (
+        <details class="group border border-[#1A1814]/10 rounded-lg overflow-hidden">
+          <summary class="flex items-center justify-between cursor-pointer p-6 hover:bg-[#1A1814]/[0.02] transition-colors">
+            <h2 class="font-semibold text-left pr-4">{faq.question}</h2>
+            <svg class="w-5 h-5 text-[#1A1814]/30 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-[#1A1814]/70 leading-relaxed">
+            <p set:html={faq.answer} />
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12">
+    <div class="bg-[#1A1814] text-[#F7F4EF] rounded-xl p-8 md:p-12">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Still have questions?</h2>
+      <p class="text-[#F7F4EF]/70 mb-6 max-w-xl">
+        No pressure, no sales pitch. Just honest answers about what we can build for your business.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/get-started" class="inline-flex items-center justify-center px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+          Get started
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 border border-[#F7F4EF]/20 text-[#F7F4EF] font-medium rounded-lg hover:border-[#B85C38] hover:text-[#B85C38] transition-colors">
+          Contact us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8">
+    <NewsletterSignup source="website" heading="Get web tips for your business" subtext="Practical advice on websites, SEO, and digital marketing for SC small businesses." />
+  </section>
+</PublicLayout>

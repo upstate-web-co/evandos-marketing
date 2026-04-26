@@ -1,0 +1,410 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import NewsletterSignup from '../components/NewsletterSignup.astro'
+import TestimonialCard from '../components/TestimonialCard.astro'
+import PackageShowcase from '../components/PackageShowcase.astro'
+import HeroAsk from '../components/chat/HeroAsk'
+
+const siteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Upstate Web Co.',
+  description: 'Custom websites, stores, and apps for small businesses and solopreneurs.',
+  url: 'https://upstate-web.com',
+  email: 'hello@upstate-web.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressRegion: 'SC',
+    addressCountry: 'US',
+  },
+  priceRange: '$$',
+}
+---
+<PublicLayout title="Home" schema={siteSchema}>
+
+  <!-- ── Hero (DARK, full-bleed) ───────────────────── -->
+  <section class="full-bleed relative overflow-hidden bg-charcoal text-cream py-20 md:py-32">
+    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal/95 to-rust/20"></div>
+    <div class="relative max-w-6xl mx-auto px-6">
+      <a href="/blog/uwc-launch-day" class="inline-block mb-8 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
+        <p class="text-sm text-cream/70 font-medium">Launched April 7th &mdash; read our story &rarr;</p>
+      </a>
+      <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-6">Custom websites for small businesses</p>
+      <h1 class="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.1] max-w-4xl">
+        Your business has a story.<br />
+        <span class="text-rust">We build the website that tells it.</span>
+      </h1>
+      <p class="mt-6 text-lg md:text-xl text-cream/60 max-w-2xl leading-relaxed">
+        Custom websites, online stores, and apps for small businesses and solopreneurs.
+        No templates. No page builders. Just fast, clean sites that work.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="/get-started" class="inline-flex items-center justify-center px-6 py-3 bg-rust text-white font-medium rounded-lg hover:bg-rust-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+          Get a free quote
+        </a>
+        <a href="/work" class="inline-flex items-center justify-center px-6 py-3 border border-cream/20 text-cream font-medium rounded-lg hover:border-rust hover:text-rust hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+          See our work
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Search Bar (transition from dark hero to cream) -->
+  <section class="py-12">
+    <HeroAsk client:load />
+  </section>
+
+  <!-- ── Why Us (cream, stagger reveal) ────────────── -->
+  <section class="py-20 md:py-24">
+    <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-3">Why us</p>
+    <h2 class="font-serif text-2xl md:text-4xl mb-12">Why small businesses choose us</h2>
+    <div class="grid md:grid-cols-2 gap-8 stagger-children">
+      <div>
+        <h3 class="font-semibold mb-2">No templates, no page builders</h3>
+        <p class="text-sm text-charcoal/60 leading-relaxed">
+          Every site is hand-coded. That means faster load times, better SEO, and a design that's actually yours — not shared with 10,000 other businesses.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">You own everything</h3>
+        <p class="text-sm text-charcoal/60 leading-relaxed">
+          Your code, your domain, your content. If you ever want to leave, you take it all with you. No lock-in, no hostage situations.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Built for speed</h3>
+        <p class="text-sm text-charcoal/60 leading-relaxed">
+          Sites load in under a second on Cloudflare's global network. Fast sites rank higher on Google and convert more visitors into customers.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">AI-powered development</h3>
+        <p class="text-sm text-charcoal/60 leading-relaxed">
+          We use trained AI agents to build sites faster and write content that ranks. The same technology powering the biggest tech companies, working for your small business.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stats (DARK, full-bleed) ──────────────────── -->
+  <section class="full-bleed bg-charcoal py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 stagger-children">
+        <div class="text-center md:text-left">
+          <p class="font-serif text-5xl md:text-6xl text-rust tracking-tight">6</p>
+          <p class="text-sm text-cream/50 mt-2 uppercase tracking-wider">Projects delivered</p>
+        </div>
+        <div class="text-center md:text-left">
+          <p class="font-serif text-5xl md:text-6xl text-rust tracking-tight">&lt;1s</p>
+          <p class="text-sm text-cream/50 mt-2 uppercase tracking-wider">Average load time</p>
+        </div>
+        <div class="text-center md:text-left">
+          <p class="font-serif text-5xl md:text-6xl text-rust tracking-tight">98+</p>
+          <p class="text-sm text-cream/50 mt-2 uppercase tracking-wider">PageSpeed score</p>
+        </div>
+        <div class="text-center md:text-left">
+          <p class="font-serif text-5xl md:text-6xl text-rust tracking-tight">100%</p>
+          <p class="text-sm text-cream/50 mt-2 uppercase tracking-wider">Client ownership</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Package Showcase (cream) ──────────────────── -->
+  <section class="py-20 md:py-24">
+    <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-3">Our work</p>
+    <h2 class="font-serif text-2xl md:text-4xl mb-4">What we build</h2>
+    <p class="text-charcoal/60 mb-12 max-w-2xl leading-relaxed">
+      Every site is built from scratch with modern tools. Here's what that looks like for real clients.
+    </p>
+
+    <div class="space-y-16">
+      <!-- Business Website + Fade House -->
+      <div class="reveal">
+        <PackageShowcase
+          packageName="Business Website"
+          packageDescription="Multi-page site with CMS, blog, payments, and analytics. Everything a growing business needs online."
+          features={[
+            "5-7 custom pages with responsive design",
+            "CMS for blog and content updates",
+            "Stripe payments and contact forms",
+            "Google Analytics and SEO optimization",
+            "AI chat assistant for visitor questions",
+          ]}
+          projectTitle="Fade House Barbershop"
+          projectSlug="fade-cuts-barbershop"
+          projectImage="/images/work/fade-house-hero.jpg"
+          projectResult="Online booking with deposits, AI chat assistant, per-barber profiles. No-shows down immediately."
+          projectIndustry="Barbershop"
+        />
+      </div>
+
+      <!-- Online Store + Peach & Thread -->
+      <div class="reveal">
+        <PackageShowcase
+          packageName="Online Store"
+          packageDescription="Full e-commerce with product catalog, cart, checkout, and inventory — all connected to your Stripe account."
+          features={[
+            "Product catalog with up to 50 items",
+            "Shopping cart and Stripe checkout",
+            "Inventory management and order tracking",
+            "AI shopping assistant for recommendations",
+            "New arrivals and featured products",
+          ]}
+          projectTitle="Peach & Thread Boutique"
+          projectSlug="peach-thread-boutique"
+          projectImage="/images/work/peach-thread-hero.jpg"
+          projectResult="50-product catalog, AI shopping assistant, Friday New Arrivals. Launched before fall season."
+          projectIndustry="Women's Boutique"
+          reversed
+        />
+      </div>
+
+      <!-- Custom Apps + Workbench Miami -->
+      <div class="reveal">
+        <PackageShowcase
+          packageName="Custom Apps"
+          packageDescription="Full-stack web applications with booking systems, dashboards, member portals, and AI features."
+          features={[
+            "Custom Django or Astro application",
+            "User auth, dashboards, and admin panels",
+            "Booking systems, scheduling, memberships",
+            "AI assistants and automation",
+            "Mobile-responsive progressive web app",
+          ]}
+          projectTitle="The Workbench Miami"
+          projectSlug="workbench-miami-booking"
+          projectImage="/images/work/workbench-miami/workbench-home.png"
+          projectResult="Custom booking platform — real-time scheduling, membership billing, AI recommendations. Replaced $200/mo SaaS."
+          projectIndustry="Fitness Studio"
+          externalUrl="https://workbenchmia.com"
+          secondaryLink={{ label: "See app categories", href: "/services/app-development" }}
+        />
+      </div>
+    </div>
+
+    <!-- Other apps row -->
+    <div class="mt-12 pt-8 border-t border-charcoal/10">
+      <h3 class="text-sm font-semibold text-charcoal/40 uppercase tracking-wider mb-4">Other apps I've built</h3>
+      <div class="grid sm:grid-cols-3 gap-4">
+        <a href="/work/chefs-delight-app" class="group flex items-center gap-3 border border-charcoal/10 rounded-lg p-4 hover:border-rust/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+          <div class="w-10 h-10 bg-rust/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-rust font-bold text-sm">CD</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold group-hover:text-rust transition-colors">Chef's Delight</p>
+            <p class="text-xs text-charcoal/50">Personal chef productivity app</p>
+          </div>
+        </a>
+        <a href="https://shira.farm" target="_blank" rel="noopener" class="group flex items-center gap-3 border border-charcoal/10 rounded-lg p-4 hover:border-rust/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+          <div class="w-10 h-10 bg-sage/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-sage font-bold text-sm">SF</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold group-hover:text-rust transition-colors">Shira</p>
+            <p class="text-xs text-charcoal/50">Farm management SaaS</p>
+          </div>
+        </a>
+        <a href="https://mychama.app" target="_blank" rel="noopener" class="group flex items-center gap-3 border border-charcoal/10 rounded-lg p-4 hover:border-rust/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+          <div class="w-10 h-10 bg-rust/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-rust font-bold text-sm">MC</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold group-hover:text-rust transition-colors">MyChama</p>
+            <p class="text-xs text-charcoal/50">Group savings & investment</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <a href="/services" class="text-rust font-medium text-sm hover:underline">
+        View full pricing &rarr;
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Testimonials (cream, white cards) ─────────── -->
+  <section class="py-20 md:py-24">
+    <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-3">Testimonials</p>
+    <h2 class="font-serif text-2xl md:text-4xl mb-12">What our clients say</h2>
+    <div class="grid md:grid-cols-3 gap-6 stagger-children">
+      <TestimonialCard
+        quote="Before working with Upstate Web Co., people couldn't find us online. Now we get calls every week from people who found us on Google."
+        name="Shira"
+        role="Founder"
+      />
+      <TestimonialCard
+        quote="The site feels completely different now. Pages load instantly and our members actually use the mobile app without complaining about speed."
+        name="Chama Team"
+        role="Product Owner"
+      />
+      <TestimonialCard
+        quote="Fixed pricing, no surprises, and we own everything. Exactly what a small business needs from a web partner."
+        name="Local Business Owner"
+        role="Small Business Owner"
+      />
+    </div>
+  </section>
+
+  <!-- ── Process (DARK, full-bleed) ────────────────── -->
+  <section class="full-bleed bg-charcoal text-cream py-20 md:py-24">
+    <div class="max-w-6xl mx-auto px-6">
+      <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-3">Our process</p>
+      <h2 class="font-serif text-2xl md:text-4xl mb-4">How we work</h2>
+      <p class="text-cream/50 mb-12 max-w-2xl leading-relaxed">From first call to live site in as little as two weeks. No surprises, no scope creep.</p>
+
+      <!-- Desktop: horizontal with connecting line -->
+      <div class="hidden md:block relative">
+        <div class="absolute top-5 left-0 right-0 h-px bg-cream/10"></div>
+        <div class="grid grid-cols-5 gap-6 stagger-children">
+          <div class="relative pt-14">
+            <div class="absolute top-0 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold">1</div>
+            <h3 class="font-semibold mb-1">Discovery</h3>
+            <p class="text-sm text-cream/40">Tell us about your business and goals</p>
+          </div>
+          <div class="relative pt-14">
+            <div class="absolute top-0 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold">2</div>
+            <h3 class="font-semibold mb-1">Proposal</h3>
+            <p class="text-sm text-cream/40">Fixed price, clear scope, no surprises</p>
+          </div>
+          <div class="relative pt-14">
+            <div class="absolute top-0 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold">3</div>
+            <h3 class="font-semibold mb-1">Build</h3>
+            <p class="text-sm text-cream/40">Design and develop your custom site</p>
+          </div>
+          <div class="relative pt-14">
+            <div class="absolute top-0 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold">4</div>
+            <h3 class="font-semibold mb-1">Review</h3>
+            <p class="text-sm text-cream/40">You review, we revise until it's right</p>
+          </div>
+          <div class="relative pt-14">
+            <div class="absolute top-0 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold">5</div>
+            <h3 class="font-semibold mb-1">Launch</h3>
+            <p class="text-sm text-cream/40">Go live, you own everything</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile: vertical timeline -->
+      <div class="md:hidden relative pl-14 stagger-children">
+        <div class="absolute left-[19px] top-0 bottom-0 w-px bg-cream/10"></div>
+        <div class="space-y-8">
+          <div class="relative">
+            <div class="absolute -left-14 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold text-sm">1</div>
+            <h3 class="font-semibold mb-1">Discovery</h3>
+            <p class="text-sm text-cream/40">Tell us about your business and goals</p>
+          </div>
+          <div class="relative">
+            <div class="absolute -left-14 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold text-sm">2</div>
+            <h3 class="font-semibold mb-1">Proposal</h3>
+            <p class="text-sm text-cream/40">Fixed price, clear scope, no surprises</p>
+          </div>
+          <div class="relative">
+            <div class="absolute -left-14 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold text-sm">3</div>
+            <h3 class="font-semibold mb-1">Build</h3>
+            <p class="text-sm text-cream/40">Design and develop your custom site</p>
+          </div>
+          <div class="relative">
+            <div class="absolute -left-14 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold text-sm">4</div>
+            <h3 class="font-semibold mb-1">Review</h3>
+            <p class="text-sm text-cream/40">You review, we revise until it's right</p>
+          </div>
+          <div class="relative">
+            <div class="absolute -left-14 w-10 h-10 rounded-full bg-rust text-white flex items-center justify-center font-bold text-sm">5</div>
+            <h3 class="font-semibold mb-1">Launch</h3>
+            <p class="text-sm text-cream/40">Go live, you own everything</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── See it in action — process video (cream) ──── -->
+  <section class="py-20 md:py-24 reveal">
+    <div class="text-center mb-8">
+      <p class="text-xs font-semibold text-rust uppercase tracking-widest mb-2">See it in action</p>
+      <h2 class="font-serif text-2xl md:text-3xl mb-3">From form to live site</h2>
+      <p class="text-charcoal/60 max-w-lg mx-auto leading-relaxed">Watch how easy it is to get started — fill out a quick form, get a proposal, and your site goes live.</p>
+    </div>
+    <div class="max-w-3xl mx-auto">
+      <div class="relative rounded-xl overflow-hidden border border-charcoal/10 shadow-xl bg-charcoal">
+        <video
+          id="process-video"
+          class="w-full"
+          poster="/images/work/process-poster.jpg"
+          preload="metadata"
+          playsinline
+          muted
+        >
+          <source src="/media/videos/process-desktop.mp4" type="video/mp4" />
+        </video>
+        <div id="video-play-overlay" class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 hover:bg-black/10 transition-colors rounded-xl">
+          <button id="play-btn" class="w-16 h-16 bg-rust rounded-full flex items-center justify-center shadow-lg hover:bg-rust-dark hover:scale-105 transition-all duration-200" aria-label="Play video">
+            <svg class="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="text-center text-xs text-charcoal/30 mt-3">3 minutes from start to quote. No commitment required.</p>
+    </div>
+  </section>
+
+  <script>
+    const video = document.getElementById('process-video') as HTMLVideoElement;
+    const overlay = document.getElementById('video-play-overlay');
+    const playBtn = document.getElementById('play-btn');
+
+    if (video && overlay && playBtn) {
+      video.addEventListener('playing', () => {
+        overlay.style.display = 'none';
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {});
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.5 });
+      observer.observe(video);
+
+      overlay.addEventListener('click', () => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      });
+
+      video.addEventListener('ended', () => {
+        overlay.style.display = 'flex';
+      });
+    }
+  </script>
+
+  <!-- ── CTA (dark, full-bleed) ────────────────────── -->
+  <section class="full-bleed bg-charcoal py-20 md:py-24 reveal">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold text-rust uppercase tracking-[0.2em] mb-3">Get started</p>
+        <h2 class="font-serif text-2xl md:text-4xl text-cream mb-4">Ready to get started?</h2>
+        <p class="text-cream/60 mb-8 leading-relaxed">
+          Tell us about your business and we'll put together a plan that fits your budget. No pressure, no sales pitch.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="/get-started" class="inline-flex items-center justify-center px-6 py-3 bg-rust text-white font-medium rounded-lg hover:bg-rust-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Get started
+          </a>
+          <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 border border-cream/20 text-cream font-medium rounded-lg hover:border-rust hover:text-rust hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Just say hello
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Newsletter (cream) ────────────────────────── -->
+  <section class="py-20 md:py-24">
+    <NewsletterSignup source="website" />
+  </section>
+</PublicLayout>

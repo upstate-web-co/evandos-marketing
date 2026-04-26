@@ -1,0 +1,221 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import { getEnv } from '../../lib/env'
+
+const env = getEnv(Astro.locals)
+const db = env.DB
+
+let subscriberCount = 0
+if (db) {
+  const result = await db.prepare("SELECT COUNT(*) as count FROM email_subscribers WHERE status = 'active'").first<{ count: number }>()
+  subscriberCount = result?.count ?? 0
+}
+---
+<MarketingAdminLayout title="Broadcast">
+  <div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Send Broadcast</h1>
+        <p class="text-sm text-[#F7F4EF]/50 mt-1">
+          Email all {subscriberCount} active subscriber{subscriberCount !== 1 ? 's' : ''}
+        </p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Subject</label>
+        <input id="bc-subject" type="text" class="w-full px-3 py-2 bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg text-sm text-[#F7F4EF] placeholder-[#F7F4EF]/30 focus:border-[#B85C38] focus:outline-none" placeholder="Your email subject line" />
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-xs font-medium text-[#F7F4EF]/60">Email Body</label>
+          <div class="flex items-center gap-2">
+            <button id="bc-preview-btn" class="text-xs text-[#B85C38] hover:text-[#B85C38]/80 font-medium">Preview</button>
+            <span class="text-[#F7F4EF]/20">|</span>
+            <button id="bc-ai-toggle" class="text-xs text-purple-400 hover:text-purple-300 font-medium">AI assist</button>
+          </div>
+        </div>
+        <textarea id="bc-body" rows="14" class="w-full px-3 py-2 bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg text-sm text-[#F7F4EF] placeholder-[#F7F4EF]/30 focus:border-[#B85C38] focus:outline-none font-mono" placeholder="Write your email in HTML or plain text...
+
+Use {{{UNSUBSCRIBE_URL}}} for the unsubscribe link.
+
+Example:
+<p>Hey there,</p>
+<p>Quick update from Upstate Web Co...</p>
+<p style='font-size: 12px; color: #999;'><a href='{{{UNSUBSCRIBE_URL}}}'>Unsubscribe</a></p>"></textarea>
+      </div>
+
+      <!-- AI assist section -->
+      <div id="bc-ai-section" class="hidden">
+        <label class="block text-xs font-medium text-purple-400 mb-1">What should this broadcast be about?</label>
+        <div class="flex gap-2">
+          <input id="bc-ai-input" type="text" class="flex-1 px-3 py-2 bg-[#F7F4EF]/5 border border-purple-500/30 rounded-lg text-sm text-[#F7F4EF] placeholder-[#F7F4EF]/30 focus:border-purple-500 focus:outline-none" placeholder="e.g. announce our new AI chatbot feature for small businesses" />
+          <button id="bc-ai-generate" class="px-3 py-2 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 whitespace-nowrap">Generate</button>
+        </div>
+      </div>
+
+      <!-- Preview panel -->
+      <div id="bc-preview" class="hidden">
+        <div class="bg-white rounded-lg p-6 text-[#1A1814]">
+          <div id="bc-preview-subject" class="font-semibold text-base mb-3 pb-3 border-b border-gray-200"></div>
+          <div id="bc-preview-body" class="text-sm"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3 pt-2">
+        <button id="bc-test-btn" class="px-4 py-2 bg-[#F7F4EF]/10 text-[#F7F4EF] text-sm font-medium rounded-lg hover:bg-[#F7F4EF]/15 border border-[#F7F4EF]/10">
+          Send Test
+        </button>
+        <button id="bc-send-btn" class="px-4 py-2 bg-[#B85C38] text-white text-sm font-medium rounded-lg hover:bg-[#B85C38]/90">
+          Send to {subscriberCount} subscriber{subscriberCount !== 1 ? 's' : ''}
+        </button>
+        <span id="bc-status" class="text-sm hidden"></span>
+      </div>
+
+      <!-- Test email input (hidden until test btn clicked) -->
+      <div id="bc-test-section" class="hidden">
+        <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Send test to:</label>
+        <div class="flex gap-2">
+          <input id="bc-test-email" type="email" class="flex-1 px-3 py-2 bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg text-sm text-[#F7F4EF] placeholder-[#F7F4EF]/30 focus:border-[#B85C38] focus:outline-none" placeholder="your@email.com" />
+          <button id="bc-test-send" class="px-3 py-2 bg-[#F7F4EF]/10 text-[#F7F4EF] text-xs font-medium rounded-lg hover:bg-[#F7F4EF]/15 border border-[#F7F4EF]/10">Send Test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const subjectEl = document.getElementById('bc-subject') as HTMLInputElement
+    const bodyEl = document.getElementById('bc-body') as HTMLTextAreaElement
+    const statusEl = document.getElementById('bc-status')!
+    const testSection = document.getElementById('bc-test-section')!
+    const previewPanel = document.getElementById('bc-preview')!
+    const aiSection = document.getElementById('bc-ai-section')!
+
+    function showStatus(msg: string, ok: boolean) {
+      statusEl.textContent = msg
+      statusEl.className = `text-sm ${ok ? 'text-green-400' : 'text-red-400'}`
+      statusEl.classList.remove('hidden')
+    }
+
+    function wrapHtml(html: string): string {
+      // If it looks like raw text (no tags), wrap in paragraphs
+      if (!html.includes('<')) {
+        return html.split('\n').map(l => `<p style="margin: 0 0 12px 0; color: #374151; font-size: 14px; line-height: 1.6;">${l || '&nbsp;'}</p>`).join('')
+      }
+      return html
+    }
+
+    // Preview
+    document.getElementById('bc-preview-btn')!.addEventListener('click', () => {
+      previewPanel.classList.toggle('hidden')
+      if (!previewPanel.classList.contains('hidden')) {
+        document.getElementById('bc-preview-subject')!.textContent = subjectEl.value || '(no subject)'
+        document.getElementById('bc-preview-body')!.innerHTML = wrapHtml(bodyEl.value)
+      }
+    })
+
+    // AI toggle
+    document.getElementById('bc-ai-toggle')!.addEventListener('click', () => {
+      aiSection.classList.toggle('hidden')
+      if (!aiSection.classList.contains('hidden')) {
+        (document.getElementById('bc-ai-input') as HTMLInputElement).focus()
+      }
+    })
+
+    // AI generate
+    document.getElementById('bc-ai-generate')!.addEventListener('click', async () => {
+      const input = (document.getElementById('bc-ai-input') as HTMLInputElement).value.trim()
+      if (!input) return
+      const btn = document.getElementById('bc-ai-generate') as HTMLButtonElement
+      btn.textContent = 'Generating...'
+      btn.disabled = true
+      try {
+        const res = await fetch('/api/ai-broadcast-draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context: input }),
+        })
+        const data = await res.json()
+        if (res.ok && data.data) {
+          if (data.data.subject && !subjectEl.value) subjectEl.value = data.data.subject
+          if (data.data.body_html) bodyEl.value = data.data.body_html
+          aiSection.classList.add('hidden')
+        }
+      } catch {}
+      btn.textContent = 'Generate'
+      btn.disabled = false
+    })
+
+    // Test send toggle
+    document.getElementById('bc-test-btn')!.addEventListener('click', () => {
+      testSection.classList.toggle('hidden')
+      if (!testSection.classList.contains('hidden')) {
+        (document.getElementById('bc-test-email') as HTMLInputElement).focus()
+      }
+    })
+
+    // Test send
+    document.getElementById('bc-test-send')!.addEventListener('click', async () => {
+      const testEmail = (document.getElementById('bc-test-email') as HTMLInputElement).value.trim()
+      if (!testEmail || !subjectEl.value || !bodyEl.value) {
+        showStatus('Fill in subject, body, and test email', false)
+        return
+      }
+      const btn = document.getElementById('bc-test-send') as HTMLButtonElement
+      btn.textContent = 'Sending...'
+      btn.disabled = true
+      try {
+        const res = await fetch('/api/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject: subjectEl.value,
+            body_html: wrapHtml(bodyEl.value),
+            test_email: testEmail,
+          }),
+        })
+        const data = await res.json()
+        if (res.ok) {
+          showStatus('Test sent!', true)
+        } else {
+          showStatus(data.error || 'Failed', false)
+        }
+      } catch { showStatus('Network error', false) }
+      btn.textContent = 'Send Test'
+      btn.disabled = false
+    })
+
+    // Broadcast send
+    document.getElementById('bc-send-btn')!.addEventListener('click', async () => {
+      if (!subjectEl.value || !bodyEl.value) {
+        showStatus('Fill in subject and body', false)
+        return
+      }
+      if (!confirm('Send this broadcast to all active subscribers? This cannot be undone.')) return
+      const btn = document.getElementById('bc-send-btn') as HTMLButtonElement
+      btn.textContent = 'Sending...'
+      btn.disabled = true
+      try {
+        const res = await fetch('/api/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject: subjectEl.value,
+            body_html: wrapHtml(bodyEl.value),
+          }),
+        })
+        const data = await res.json()
+        if (res.ok) {
+          showStatus(`Sent to ${data.sent} subscriber${data.sent !== 1 ? 's' : ''}${data.failed ? ` (${data.failed} failed)` : ''}`, true)
+        } else {
+          showStatus(data.error || 'Broadcast failed', false)
+        }
+      } catch { showStatus('Network error', false) }
+      btn.textContent = 'Send Broadcast'
+      btn.disabled = false
+    })
+  </script>
+</MarketingAdminLayout>

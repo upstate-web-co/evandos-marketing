@@ -1,0 +1,207 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import TestimonialCard from '../components/TestimonialCard.astro'
+import InlineChat from '../components/chat/InlineChat'
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Upstate Web Co.',
+  description: 'Custom websites, stores, and apps for small businesses and solopreneurs.',
+  url: 'https://upstate-web.com',
+  email: 'hello@upstate-web.com',
+  founder: {
+    '@type': 'Person',
+    name: 'Joshua',
+    jobTitle: 'Founder & Developer',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressRegion: 'SC',
+    addressCountry: 'US',
+  },
+}
+---
+<PublicLayout title="About" description="Meet Josh — the developer behind Upstate Web Co. Building custom websites and apps for small businesses and solopreneurs." schema={personSchema}>
+  <!-- Personal Story -->
+  <section class="py-8 max-w-3xl">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">Hey, I'm Josh.</h1>
+    <div class="space-y-6 text-[#1A1814]/70 text-lg leading-relaxed">
+      <p>
+        I've lived in the Upstate area for 3 years. I'm a software developer trying to keep up with all things tech — and honestly, it's the best kind of problem to have.
+      </p>
+      <p>
+        I think the Upstate is buzzing with business, opportunities, and good, hardworking people. I started Upstate Web Co to help upcoming small businesses and solopreneurs create their own online presence — and have systems that help share their story and how they operate.
+      </p>
+      <p>
+        I'm currently employing <strong>agentic coding</strong>: I have a couple of AI agents I've trained to help me build websites and apps. They now even write their blogs. It means faster delivery, better quality, and more time spent on what actually matters — making your business look great online.
+      </p>
+      <p>
+        Glad to be of your service.
+      </p>
+    </div>
+  </section>
+
+  <!-- My Other Works -->
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-3xl">
+    <h2 class="text-2xl font-bold mb-6">Other things I've built</h2>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <a href="/work" class="group flex items-center gap-4 border border-[#1A1814]/10 rounded-lg p-4 hover:border-[#B85C38]/40 transition-colors">
+        <div class="w-10 h-10 bg-[#B85C38]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold group-hover:text-[#B85C38] transition-colors">UWC Portfolio</p>
+          <p class="text-xs text-[#1A1814]/50">Client websites, stores, and apps</p>
+        </div>
+      </a>
+      <a href="https://shira.farm" target="_blank" rel="noopener" class="group flex items-center gap-4 border border-[#1A1814]/10 rounded-lg p-4 hover:border-[#B85C38]/40 transition-colors">
+        <div class="w-10 h-10 bg-[#4A6741]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span class="text-[#4A6741] font-bold text-sm">SF</span>
+        </div>
+        <div>
+          <p class="text-sm font-semibold group-hover:text-[#B85C38] transition-colors">Shira FarmTrack</p>
+          <p class="text-xs text-[#1A1814]/50">Farm management SaaS</p>
+        </div>
+      </a>
+      <a href="https://mychama.app" target="_blank" rel="noopener" class="group flex items-center gap-4 border border-[#1A1814]/10 rounded-lg p-4 hover:border-[#B85C38]/40 transition-colors">
+        <div class="w-10 h-10 bg-[#B85C38]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span class="text-[#B85C38] font-bold text-sm">MC</span>
+        </div>
+        <div>
+          <p class="text-sm font-semibold group-hover:text-[#B85C38] transition-colors">MyChama</p>
+          <p class="text-xs text-[#1A1814]/50">Group savings & investment app</p>
+        </div>
+      </a>
+      <a href="/work/chefs-delight-app" class="group flex items-center gap-4 border border-[#1A1814]/10 rounded-lg p-4 hover:border-[#B85C38]/40 transition-colors">
+        <div class="w-10 h-10 bg-[#B85C38]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span class="text-[#B85C38] font-bold text-sm">CD</span>
+        </div>
+        <div>
+          <p class="text-sm font-semibold group-hover:text-[#B85C38] transition-colors">Chef's Delight</p>
+          <p class="text-xs text-[#1A1814]/50">Personal chef productivity app</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-3xl">
+    <h2 class="text-2xl font-bold mb-8">What I believe</h2>
+    <div class="space-y-8">
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38]/10 flex items-center justify-center flex-shrink-0 mt-1">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Fixed pricing, no surprises</h3>
+          <p class="text-[#1A1814]/60">You know the price before we start. No hourly billing, no scope creep charges. If I underestimate, that's on me — not you.</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38]/10 flex items-center justify-center flex-shrink-0 mt-1">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">You own everything</h3>
+          <p class="text-[#1A1814]/60">Your code, your domain, your content. If you ever want to leave, you take it all with you. No lock-in.</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38]/10 flex items-center justify-center flex-shrink-0 mt-1">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Speed is a feature</h3>
+          <p class="text-[#1A1814]/60">Sites consistently score 95+ on Google PageSpeed. Fast sites rank higher and convert more visitors into customers.</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38]/10 flex items-center justify-center flex-shrink-0 mt-1">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">Always learning</h3>
+          <p class="text-[#1A1814]/60">Tech moves fast. I'm constantly learning — from agentic coding to new frameworks. My clients get the benefit of staying current without having to keep up themselves.</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-full bg-[#B85C38]/10 flex items-center justify-center flex-shrink-0 mt-1">
+          <svg class="w-5 h-5 text-[#B85C38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold mb-1">We practice what we preach</h3>
+          <p class="text-[#1A1814]/60">This website runs on the same stack I use for clients. My own marketing dashboard, agent system, and tools are built with the same technology. <a href="/work/uwc-marketing-platform" class="text-[#B85C38] hover:underline">See the case study</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="py-12 border-t border-[#1A1814]/10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-3xl">
+      <div>
+        <p class="text-3xl font-bold text-[#B85C38]">6</p>
+        <p class="text-sm text-[#1A1814]/60 mt-1">Projects completed</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-[#B85C38]">98+</p>
+        <p class="text-sm text-[#1A1814]/60 mt-1">PageSpeed score</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-[#B85C38]">1 day</p>
+        <p class="text-sm text-[#1A1814]/60 mt-1">Response time</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-[#B85C38]">100%</p>
+        <p class="text-sm text-[#1A1814]/60 mt-1">Client ownership</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-3xl">
+    <TestimonialCard
+      quote="Before working with Upstate Web Co., people couldn't find us online. Now we get calls every week from people who found us on Google. The site paid for itself in the first month."
+      name="Shira"
+      role="Founder"
+    />
+  </section>
+
+  <!-- Ask about UWC — Public Agent -->
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-2xl">
+    <InlineChat
+      client:visible
+      agent="public"
+      title="Want to know more about UWC?"
+      subtitle="Ask me anything about Josh, how we work, or what we believe"
+      suggestions={["What makes UWC different?", "How does agentic coding work?", "What kind of clients do you work with?"]}
+    />
+  </section>
+
+  <!-- CTA -->
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-3xl">
+    <div class="bg-[#1A1814] text-[#F7F4EF] rounded-xl p-8 md:p-12">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Want to work together?</h2>
+      <p class="text-[#F7F4EF]/70 mb-6">Tell us about your business. I'll let you know if we're a good fit — and if we're not, I'll point you somewhere that is.</p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/get-started" class="inline-flex items-center justify-center px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+          Get started
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 border border-[#F7F4EF]/20 text-[#F7F4EF] font-medium rounded-lg hover:border-[#B85C38] hover:text-[#B85C38] transition-colors">
+          Just say hello
+        </a>
+      </div>
+    </div>
+  </section>
+</PublicLayout>

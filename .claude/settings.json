@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const t=JSON.parse(d).tool_input?.todos||[];if(t.length>0&&t.every(x=>x.status==='completed')){console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'PostToolUse',additionalContext:'ALL TODOS COMPLETED. Before starting new work, update: (1) CLAUDE.md — version bump, new files in structure tree. (2) PROJECT_STATE.md — add session entry with what was done. (3) .claude/memory/MEMORY.md — update quick references if API routes, lib files, or patterns changed.'}}))}}catch{}})\"",
+            "timeout": 5,
+            "statusMessage": "Checking todo completion..."
+          }
+        ]
+      }
+    ]
+  }
+}

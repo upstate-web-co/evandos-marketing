@@ -1,0 +1,95 @@
+---
+title: 'Chama: Django to Astro SaaS Migration'
+client: MyChama
+industry: SaaS / FinTech
+description: >-
+  Migrated a Django group savings platform to Astro, converting 13 of 19
+  React components to zero-JS — cutting bundle size and load times dramatically.
+challenge: >-
+  MyChama had a Django-based group savings platform that was slow to load,
+  expensive to host, and difficult to iterate on. The React frontend shipped
+  heavy JavaScript bundles to every visitor, even for pages that were purely
+  informational. Mobile users in particular suffered from long load times.
+solution: >-
+  We rebuilt the frontend with a component-by-component migration strategy.
+  Each page was evaluated: does it need interactivity, or can it be static?
+  Of 19 sections, 13 became instant-loading static pages. The remaining 6
+  kept full interactivity. The backend API stayed untouched — no rewrite needed.
+results:
+  - 13 of 19 components converted to zero-JS
+  - 70% reduction in client-side JavaScript
+  - Sub-second page loads on mobile
+  - Deployed on Cloudflare's global edge network
+  - Same Django API — no backend rewrite needed
+testimonial:
+  quote: >-
+    The site feels completely different now. Pages load instantly and our
+    members actually use the mobile app without complaining about speed.
+  name: Chama Team
+  role: Product Owner
+liveUrl: 'https://mychama.app'
+ogImage: /images/work/chama-hero.jpg
+screenshots:
+  - /images/work/chama-faq.jpg
+  - /images/work/chama-pricing.jpg
+  - /images/work/chama-app-login.jpg
+services:
+  - development
+  - migration
+  - seo
+timeline: 4 weeks
+publishedDate: '2026-03-15'
+featured: true
+draft: false
+---
+
+## The situation
+
+MyChama is a group savings platform — think digital *chama* (community savings group) — where members pool funds, track contributions, and manage payouts. The platform had a working product with real users, but the technology was holding it back.
+
+The original setup mixed Django templates with React components and sat on traditional hosting. It worked, but it was slow, expensive, and hard to change.
+
+## The problems
+
+- **Slow on mobile**: Every page shipped the full React runtime, even pages that just showed text and images. Users on mid-range phones and variable connections waited 3+ seconds for pages to load
+- **Slow, outdated hosting**: Traditional server hosting meant paying for idle compute with no performance benefit
+- **Hard to update**: The Django + React hybrid made even simple changes slow and error-prone. Changing a heading could break a component
+- **Falling behind**: Competitors with modern, fast platforms were gaining ground
+
+## What we built
+
+### Component-by-component migration
+
+Rather than rewriting everything from scratch (risky, expensive), we audited every page individually:
+
+1. **Does this page need interactivity?** If not, convert it to a lightweight static page
+2. **Does it handle forms, payments, or real-time data?** Keep the interactive features intact
+3. **Don't touch the backend** — the API that powers everything stays exactly as-is
+
+### 70% less code for users to download
+
+Of 19 sections in the app, **13 didn't need to run code in the browser at all**. They were showing information, navigation, or pricing — things that don't require heavy downloads. By converting these to lightweight pages, we cut 70% of the code users had to download without changing any functionality.
+
+### The features that matter kept working
+
+The remaining 6 sections — transaction forms, member dashboards, and payment integrations — kept their full interactivity. Members didn't notice the migration. They just noticed the speed.
+
+### Global deployment
+
+The new site loads from 300+ servers worldwide. No matter where a member is, the closest server responds — faster, more reliable, and built to scale.
+
+## The results
+
+- **Page load time**: From 3.2 seconds to under 1 second on mobile
+- **Code downloaded**: 70% less — only what's needed
+- **Hosting**: Cloudflare edge network vs. traditional single-server hosting
+- **Google scores**: All green across every performance metric
+- **Same features**: Members didn't lose any functionality — everything works the same, just faster
+
+## Why this matters for your business
+
+If you have a web application that feels slow, you don't necessarily need to rebuild everything. Often the fix is identifying which parts are carrying unnecessary weight and streamlining them — without disrupting the features your users depend on.
+
+We also built a marketing site that presents the SaaS story to MyChama's target audience — packaging the service value and helping reach the right niche through SEO and content.
+
+Visit the app: [mychama.app](https://mychama.app)

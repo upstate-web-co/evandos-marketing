@@ -1,0 +1,66 @@
+---
+export const prerender = true
+
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+import PublicLayout from '../../layouts/PublicLayout.astro'
+import NewsletterSignup from '../../components/NewsletterSignup.astro'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const posts = await reader.collections.blog.all()
+
+const publishedPosts = posts
+  .filter((post) => !post.entry.draft)
+  .sort((a, b) => {
+    const dateA = a.entry.publishedDate ?? ''
+    const dateB = b.entry.publishedDate ?? ''
+    return dateB.localeCompare(dateA)
+  })
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+---
+<PublicLayout title="Blog" description="Web design tips, pricing guides, and digital marketing advice for small businesses and solopreneurs.">
+  <section class="py-8 max-w-3xl">
+    <h1 class="text-4xl md:text-5xl font-bold mb-3">Blog</h1>
+    <p class="text-lg text-[#1A1814]/60">
+      Practical advice on websites, SEO, and digital marketing — written for small business owners, not developers.
+    </p>
+  </section>
+
+  {publishedPosts.length === 0 && (
+    <p class="text-[#1A1814]/40 py-8">No posts yet. Check back soon.</p>
+  )}
+
+  <section class="py-4 max-w-3xl">
+    <div class="space-y-6">
+      {publishedPosts.map((post, i) => (
+        <a href={`/blog/${post.slug}`} class="group block">
+          <article class:list={[
+            'rounded-xl p-6 md:p-8 transition-all duration-200',
+            'border border-[#1A1814]/10 hover:border-[#B85C38]/30 hover:shadow-md',
+            'bg-white',
+          ]}>
+            <div class="flex items-center gap-3 mb-3">
+              <time class="text-xs text-[#1A1814]/40 font-medium">{formatDate(post.entry.publishedDate ?? '')}</time>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold leading-tight group-hover:text-[#B85C38] transition-colors duration-200">
+              {post.entry.title}
+            </h2>
+            <p class="text-[#1A1814]/60 mt-3 leading-relaxed">{post.entry.description}</p>
+            <span class="inline-flex items-center gap-1 text-sm text-[#B85C38] font-medium mt-4 group-hover:gap-2 transition-all duration-200">
+              Read more
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </span>
+          </article>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 max-w-3xl">
+    <NewsletterSignup source="blog" heading="Get more posts like these" subtext="Web tips for SC small businesses. No spam, unsubscribe anytime." />
+  </section>
+</PublicLayout>

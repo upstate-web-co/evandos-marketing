@@ -1,0 +1,83 @@
+---
+interface Props {
+  heading?: string
+  subtext?: string
+}
+
+const {
+  heading = 'Free: Website Audit Checklist',
+  subtext = 'Check your site\'s speed, SEO, mobile experience, and local search presence. Built for SC small businesses.',
+} = Astro.props
+---
+<div class="lead-magnet-cta bg-[#B85C38]/10 border border-[#B85C38]/20 rounded-xl p-6 md:p-8">
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div class="flex-1">
+      <p class="text-xs font-medium text-[#B85C38] uppercase tracking-wider mb-1">Free download</p>
+      <h3 class="text-lg font-semibold mb-1">{heading}</h3>
+      <p class="text-sm text-[#1A1814]/60">{subtext}</p>
+    </div>
+    <form class="lead-magnet-form flex flex-col sm:flex-row gap-2 sm:shrink-0">
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="you@business.com"
+        class="px-4 py-2.5 border border-[#1A1814]/20 rounded-lg bg-white text-sm focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] sm:w-56"
+      />
+      <button
+        type="submit"
+        class="lead-magnet-btn px-5 py-2.5 bg-[#B85C38] text-white text-sm font-medium rounded-lg hover:bg-[#a04e2f] transition-colors disabled:opacity-50 whitespace-nowrap"
+      >
+        Get the checklist
+      </button>
+    </form>
+  </div>
+  <p class="lead-magnet-message hidden mt-3 text-sm"></p>
+  <div class="mt-4 pt-4 border-t border-[#B85C38]/10 text-center">
+    <a href="/get-started" class="text-sm text-[#B85C38] hover:text-[#a04e2f] font-medium">
+      Or tell us about your project &rarr;
+    </a>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.lead-magnet-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const formEl = e.currentTarget as HTMLFormElement
+      const btn = formEl.querySelector('.lead-magnet-btn') as HTMLButtonElement
+      const msgEl = formEl.closest('.lead-magnet-cta')?.querySelector('.lead-magnet-message') as HTMLElement
+      const email = (formEl.elements.namedItem('email') as HTMLInputElement).value.trim()
+
+      btn.disabled = true
+      btn.textContent = 'Sending...'
+      msgEl.classList.add('hidden')
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'lead-magnet' }),
+        })
+        const data = await res.json()
+
+        if (!res.ok) throw new Error(data.error ?? 'Something went wrong')
+
+        msgEl.textContent = 'Check your email for the download link!'
+        msgEl.className = 'lead-magnet-message mt-3 text-sm text-[#4A6741]'
+        msgEl.classList.remove('hidden')
+        formEl.reset()
+
+        if (typeof window.fbq === 'function') window.fbq('track', 'Subscribe')
+        if (typeof window.gtag === 'function') window.gtag('event', 'sign_up', { method: 'lead_magnet' })
+      } catch (err) {
+        msgEl.textContent = err instanceof Error ? err.message : 'Something went wrong'
+        msgEl.className = 'lead-magnet-message mt-3 text-sm text-red-600'
+        msgEl.classList.remove('hidden')
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Get the checklist'
+      }
+    })
+  })
+</script>

@@ -1,0 +1,18 @@
+---
+import MarketingAdminLayout from '../../../layouts/MarketingAdminLayout.astro'
+import PostDetail from '../../../components/marketing-admin/PostDetail'
+
+const { id } = Astro.params
+---
+<MarketingAdminLayout title="Post Detail">
+  <div class="mb-6">
+    <a href="/marketing-admin/calendar" class="text-xs text-[#F7F4EF]/40 hover:text-[#F7F4EF]/70 transition-colors">
+      &larr; Back to Calendar
+    </a>
+    <h1 class="text-2xl font-bold tracking-tight mt-2">Post Detail</h1>
+  </div>
+
+  <div class="max-w-2xl">
+    <PostDetail client:load postId={id!} />
+  </div>
+</MarketingAdminLayout>

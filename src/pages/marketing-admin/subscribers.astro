@@ -1,0 +1,20 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import SubscribersList from '../../components/marketing-admin/SubscribersList.tsx'
+import SubjectLineGenerator from '../../components/marketing-admin/SubjectLineGenerator.tsx'
+---
+<MarketingAdminLayout title="Subscribers">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">Email Subscribers</h1>
+      <p class="text-sm text-[#F7F4EF]/50 mt-1">Newsletter signups from the public site</p>
+    </div>
+  </div>
+  <SubscribersList client:load />
+
+  <div class="mt-12 border-t border-[#F7F4EF]/10 pt-8">
+    <h2 class="text-lg font-semibold mb-1">Subject Line Generator</h2>
+    <p class="text-sm text-[#F7F4EF]/50 mb-4">Generate subject lines for Resend broadcasts</p>
+    <SubjectLineGenerator client:load />
+  </div>
+</MarketingAdminLayout>

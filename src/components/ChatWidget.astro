@@ -1,0 +1,99 @@
+---
+/**
+ * ChatWidget — floating AI assistant for the UWC marketing site.
+ * Multi-turn conversation. Helps visitors learn about services, pricing, process.
+ */
+---
+
+<button
+  id="chat-toggle"
+  class="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#B85C38] text-white shadow-lg transition-all hover:bg-[#a04e2f] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#B85C38] focus:ring-offset-2"
+  aria-label="Ask about our services"
+  aria-expanded="false"
+>
+  <svg id="chat-icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+  <svg id="chat-icon-close" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+</button>
+
+<div id="chat-panel" class="fixed bottom-24 right-6 z-40 hidden w-[340px] max-h-[480px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl border border-gray-200 sm:w-[380px]" role="dialog" aria-label="Chat with Upstate Web Co">
+  <div class="flex items-center gap-3 bg-[#1A1814] px-4 py-3">
+    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#B85C38] text-sm font-bold text-white">U</div>
+    <div>
+      <p class="text-sm font-semibold text-white">Upstate Web Co</p>
+      <p class="text-xs text-white/60">Ask about services, pricing, process</p>
+    </div>
+  </div>
+
+  <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3" style="max-height: 320px; min-height: 200px;">
+    <div class="flex gap-2">
+      <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#B85C38]/10 text-xs font-bold text-[#B85C38]">U</div>
+      <div class="rounded-2xl rounded-tl-sm bg-gray-100 px-3 py-2 text-sm text-gray-700 max-w-[85%]">
+        Hi! I can help with questions about our web design and app development services. What are you looking for?
+      </div>
+    </div>
+  </div>
+
+  <form id="chat-form" class="flex items-center gap-2 border-t px-3 py-3">
+    <label for="chat-input" class="sr-only">Ask a question</label>
+    <input type="text" id="chat-input" placeholder="Ask about pricing, services, timeline..." maxlength="500" autocomplete="off"
+      class="flex-1 rounded-full border bg-gray-50 px-4 py-2 text-sm focus:border-[#B85C38] focus:outline-none focus:ring-1 focus:ring-[#B85C38]" />
+    <button type="submit" id="chat-send" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#B85C38] text-white hover:bg-[#a04e2f] disabled:opacity-50" aria-label="Send">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+    </button>
+  </form>
+</div>
+
+<script>
+  interface Msg { role: 'user' | 'assistant'; content: string }
+  const toggle = document.getElementById('chat-toggle')!
+  const panel = document.getElementById('chat-panel')!
+  const iconOpen = document.getElementById('chat-icon-open')!
+  const iconClose = document.getElementById('chat-icon-close')!
+  const messagesEl = document.getElementById('chat-messages')!
+  const form = document.getElementById('chat-form') as HTMLFormElement
+  const input = document.getElementById('chat-input') as HTMLInputElement
+  const sendBtn = document.getElementById('chat-send') as HTMLButtonElement
+  const history: Msg[] = []
+
+  toggle.addEventListener('click', () => {
+    const opening = panel.classList.contains('hidden')
+    panel.classList.toggle('hidden')
+    panel.classList.toggle('flex')
+    iconOpen.classList.toggle('hidden', !panel.classList.contains('hidden'))
+    iconClose.classList.toggle('hidden', panel.classList.contains('hidden'))
+    toggle.setAttribute('aria-expanded', String(opening))
+    if (opening) input.focus()
+  })
+
+  function esc(t: string) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>') }
+
+  function add(role: 'user'|'assistant', text: string) {
+    const d = document.createElement('div')
+    d.className = role === 'user' ? 'flex gap-2 justify-end' : 'flex gap-2'
+    d.innerHTML = role === 'assistant'
+      ? `<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#B85C38]/10 text-xs font-bold text-[#B85C38]">U</div><div class="rounded-2xl rounded-tl-sm bg-gray-100 px-3 py-2 text-sm text-gray-700 max-w-[85%]">${esc(text)}</div>`
+      : `<div class="rounded-2xl rounded-tr-sm bg-[#B85C38] px-3 py-2 text-sm text-white max-w-[85%]">${esc(text)}</div>`
+    messagesEl.appendChild(d)
+    messagesEl.scrollTop = messagesEl.scrollHeight
+  }
+
+  function typing() {
+    const d = document.createElement('div'); d.id = 'typing'; d.className = 'flex gap-2'
+    d.innerHTML = '<div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#B85C38]/10 text-xs font-bold text-[#B85C38]">U</div><div class="rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-3 text-sm text-gray-400 animate-pulse">...</div>'
+    messagesEl.appendChild(d); messagesEl.scrollTop = messagesEl.scrollHeight
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const t = input.value.trim(); if (!t) return
+    history.push({ role: 'user', content: t }); add('user', t)
+    input.value = ''; input.disabled = true; sendBtn.disabled = true; typing()
+    try {
+      const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: history }) })
+      document.getElementById('typing')?.remove()
+      if (r.ok) { const j = await r.json(); history.push({ role: 'assistant', content: j.data.reply }); add('assistant', j.data.reply) }
+      else add('assistant', 'Sorry, something went wrong. Email us at hello@upstate-web.com.')
+    } catch { document.getElementById('typing')?.remove(); add('assistant', 'Connection lost. Try again!') }
+    finally { input.disabled = false; sendBtn.disabled = false; input.focus() }
+  })
+</script>

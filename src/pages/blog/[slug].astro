@@ -1,0 +1,90 @@
+---
+export const prerender = true
+
+import { createReader } from '@keystatic/core/reader'
+import Markdoc from '@markdoc/markdoc'
+import keystaticConfig from '../../../keystatic.config'
+import PublicLayout from '../../layouts/PublicLayout.astro'
+import NewsletterSignup from '../../components/NewsletterSignup.astro'
+import LeadMagnetCTA from '../../components/LeadMagnetCTA.astro'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), keystaticConfig)
+  const posts = await reader.collections.blog.all()
+  return posts
+    .filter((post) => !post.entry.draft)
+    .map((post) => ({
+      params: { slug: post.slug },
+    }))
+}
+
+const { slug } = Astro.params
+
+if (!slug) {
+  return Astro.redirect('/blog')
+}
+
+const post = await reader.collections.blog.read(slug)
+
+if (!post || post.draft) {
+  return Astro.redirect('/blog')
+}
+
+const markdocContent = await post.content()
+const transformed = Markdoc.transform(markdocContent.node)
+const rendered = Markdoc.renderers.html(transformed)
+
+// Reading time estimate (200 words per minute)
+const wordCount = rendered.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length
+const readingTime = Math.max(1, Math.ceil(wordCount / 200))
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  description: post.description,
+  datePublished: post.publishedDate,
+  author: {
+    '@type': 'Organization',
+    name: 'Upstate Web Co.',
+    url: 'https://upstate-web.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Upstate Web Co.',
+    url: 'https://upstate-web.com',
+  },
+  url: `https://upstate-web.com/blog/${slug}`,
+}
+---
+<PublicLayout title={post.title} description={post.description} schema={articleSchema}>
+  <article class="max-w-3xl">
+    <a href="/blog" class="text-sm text-[#B85C38] hover:underline inline-flex items-center gap-1 mb-6">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+      Back to blog
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 text-sm text-[#1A1814]/40 mb-3">
+        <time>{formatDate(post.publishedDate ?? '')}</time>
+        <span class="w-1 h-1 rounded-full bg-[#1A1814]/20"></span>
+        <span>{readingTime} min read</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold leading-tight">{post.title}</h1>
+    </header>
+
+    <div class="blog-content max-w-none" set:html={rendered} />
+  </article>
+
+  <div class="max-w-3xl mt-14 space-y-8">
+    <LeadMagnetCTA />
+    <NewsletterSignup source="blog" heading="Enjoyed this post?" subtext="Get more web design tips and guides for small businesses. No spam, unsubscribe anytime." />
+  </div>
+</PublicLayout>

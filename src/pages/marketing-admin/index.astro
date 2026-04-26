@@ -1,0 +1,57 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import DashboardStats from '../../components/marketing-admin/DashboardStats'
+
+const cards = [
+  {
+    label: 'Compose',
+    href: '/marketing-admin/compose',
+    description: 'Draft and schedule social posts with AI assist',
+    status: 'Ready',
+  },
+  {
+    label: 'Calendar',
+    href: '/marketing-admin/calendar',
+    description: 'View scheduled posts across platforms',
+    status: 'Ready',
+  },
+  {
+    label: 'SEO',
+    href: '/marketing-admin/seo',
+    description: 'Edit page titles, descriptions, and schema',
+    status: 'Ready',
+  },
+  {
+    label: 'Analytics',
+    href: '/marketing-admin/analytics',
+    description: 'Traffic and engagement metrics',
+    status: 'Ready',
+  },
+]
+---
+<MarketingAdminLayout title="Dashboard">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+    <p class="text-sm text-[#F7F4EF]/50 mt-1">Marketing operations for Upstate Web Co.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    {cards.map(({ label, href, description, status }) => (
+      <a
+        href={href}
+        class="block p-5 rounded-xl border border-[#F7F4EF]/10 hover:border-[#B85C38]/50 hover:bg-[#F7F4EF]/5 transition-colors group"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-semibold group-hover:text-[#B85C38] transition-colors">{label}</h2>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-green-900/30 text-green-300">{status}</span>
+        </div>
+        <p class="text-sm text-[#F7F4EF]/50">{description}</p>
+      </a>
+    ))}
+  </div>
+
+  <div class="mt-8 p-5 rounded-xl border border-[#F7F4EF]/10">
+    <h2 class="font-semibold mb-3">Quick Stats</h2>
+    <DashboardStats client:load />
+  </div>
+</MarketingAdminLayout>

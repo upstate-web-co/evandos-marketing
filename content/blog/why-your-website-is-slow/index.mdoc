@@ -1,0 +1,90 @@
+---
+title: 'Why Your Website Is Slow (And What It Costs You)'
+description: >-
+  A 1-second delay costs you 7% of conversions. Here's why most small business sites are slow and how to fix it.
+publishedDate: '2026-04-14'
+draft: true
+---
+
+Pull up your business website on your phone right now. Count the seconds until everything loads. If you got past three, you have a problem — and it's costing you real money.
+
+## The numbers behind slow websites
+
+Google has been studying this for years, and the data is brutal:
+
+- **1-second delay** in page load = **7% drop in conversions**
+- **53% of mobile visitors** leave a site that takes longer than 3 seconds to load
+- **A site that loads in 5 seconds** has a bounce rate 90% higher than one that loads in 1 second
+
+Let's put that in dollars. Say your website brings in 1,000 visitors a month and converts 3% of them into customers worth $100 each. That's $3,000/month in revenue. A 1-second delay drops that to $2,790. A 3-second delay? You're looking at closer to $2,370. Over a year, that's $7,560 in lost revenue — from a problem most business owners don't even know they have.
+
+## Why your site is probably slow
+
+### WordPress and its 40 plugins
+
+WordPress powers 40% of the web, and most of those sites are slow. Not because WordPress is inherently terrible, but because of what happens over time: you install a theme, add a contact form plugin, a security plugin, an SEO plugin, a caching plugin (ironic), a slider, a pop-up tool, and a cookie banner. Each one adds JavaScript, CSS, and database queries.
+
+A typical WordPress business site loads 2-4MB of data and makes 80-120 requests to the server. Your visitors' browsers are doing a lot of heavy lifting just to show your hours and phone number.
+
+### Website builders add their own weight
+
+Wix and Squarespace bundle their entire application framework into every page. Even a simple 5-page brochure site on Wix loads their proprietary rendering engine, analytics, and app infrastructure. It's like shipping an entire toolbox when all you needed was a screwdriver.
+
+**Average Core Web Vitals scores we see:**
+- WordPress (typical small business): **55-70** out of 100
+- Wix: **50-65** out of 100
+- Squarespace: **60-75** out of 100
+- Custom Astro + Cloudflare site: **95-100** out of 100
+
+Core Web Vitals is Google's official speed measurement. Anything below 90 means your site is slower than Google thinks it should be. And Google uses these scores to decide where you rank in search results.
+
+### Cheap hosting
+
+Many small business sites run on shared hosting — GoDaddy, Bluehost, HostGator — where your website shares a server with hundreds of other sites. During peak hours, your site slows down because everyone else's traffic is competing for the same resources.
+
+## What a fast site actually looks like
+
+When we built the site for Fade House Barbershop, we used Astro and deployed it on Cloudflare's global CDN. The result: pages load in under 1 second from anywhere in the world. Not because we're magicians, but because of how the technology works.
+
+**Astro** generates static HTML at build time. When someone visits the site, the server doesn't have to run PHP, query a database, or assemble the page on the fly. It just sends a pre-built HTML file. It's the difference between cooking a meal from scratch for every customer versus having it plated and ready to serve.
+
+**Cloudflare's CDN** caches that HTML at 300+ data centers worldwide. A visitor in Miami gets served from a Miami data center. Someone in London gets served from London. The content doesn't have to travel across the ocean.
+
+The combination means:
+- **Time to First Byte**: Under 50ms (WordPress average: 800ms+)
+- **Largest Contentful Paint**: Under 1 second (the image or text block that takes longest to appear)
+- **Total page weight**: 100-300KB (versus 2-4MB for a typical WordPress site)
+
+## How to check your own site speed
+
+You can test this yourself in about 30 seconds:
+
+1. Go to [PageSpeed Insights](https://pagespeed.web.dev)
+2. Enter your website URL
+3. Look at the **Performance** score for mobile (mobile matters more — that's where most of your customers are)
+
+If you're scoring below 80, your site is actively turning away customers. Below 60, and you're in the danger zone for Google rankings too.
+
+## The SEO connection
+
+Google confirmed in 2021 that Core Web Vitals are a ranking factor. Translation: if two businesses offer the same service in the same area, the one with the faster website gets a ranking boost.
+
+This matters most for local search. When someone googles "barbershop near me" or "boutique in Greenville," Google is weighing speed alongside reviews, relevance, and proximity. A fast site won't override a bad reputation, but between two otherwise equal businesses, speed is the tiebreaker.
+
+We see this play out with our clients. Peach and Thread Boutique went from a sluggish template site to a custom build that scores 97 on mobile. Their organic search traffic increased within weeks — not because we did anything magical with SEO, but because the site stopped being penalized for being slow.
+
+## What it costs to fix
+
+If your site is on WordPress with a dozen plugins, you have two options:
+
+**Option 1: Optimize what you have.** Hire someone to audit your plugins, compress images, add caching, and switch to better hosting. Budget $500-$1,500 for the work, plus $30-$100/month for managed WordPress hosting. You'll get to the 75-85 range on PageSpeed. The downside: it's a band-aid. You'll drift back to slow as you add content and plugins.
+
+**Option 2: Start fresh with modern technology.** A custom Astro site on Cloudflare starts at $750 for a Starter site (up to 5 pages). Business sites with booking, forms, or integrations run $1,800-$3,500. You'll score 95+ on PageSpeed from day one, and it stays fast because there's no plugin bloat to accumulate.
+
+Over a 3-year period, the custom site is usually cheaper when you factor in hosting costs. No bloated hosting stack. No plugin overhead. Just fast, modern infrastructure.
+
+## Speed is not a luxury
+
+A slow website is not a cosmetic problem. It's a leak in your business. Every second of load time costs you visitors, customers, and search rankings. The good news: it's one of the most fixable problems in your entire business.
+
+Test your site speed today. If the number makes you wince, [tell us about your business](/get-started) and we'll show you what a fast site looks like.

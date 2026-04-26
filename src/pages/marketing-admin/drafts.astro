@@ -1,0 +1,22 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import DraftsList from '../../components/marketing-admin/DraftsList'
+---
+<MarketingAdminLayout title="Drafts">
+  <div class="mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Drafts</h1>
+        <p class="text-sm text-[#F7F4EF]/50 mt-1">Saved content drafts. Edit or schedule them.</p>
+      </div>
+      <a
+        href="/marketing-admin/compose"
+        class="px-4 py-2 bg-[#B85C38] text-white text-sm font-medium rounded-lg hover:bg-[#a04e2f] transition-colors"
+      >
+        + New Draft
+      </a>
+    </div>
+  </div>
+
+  <DraftsList client:load />
+</MarketingAdminLayout>

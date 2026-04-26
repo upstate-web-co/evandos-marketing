@@ -1,0 +1,27 @@
+name = "uwc-marketing-site"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agency-db"
+database_id = "35082de9-b2c5-4281-bff2-932dac8bf3a4"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "agency-media"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "bd3160683f3b413292d8f3be1248e131"
+
+# Cron triggers will be added in Phase 10 via a separate Worker
+# [triggers]
+# crons = ["*/5 * * * *", "0 2 * * *"]
+
+[vars]
+ENVIRONMENT = "production"
+SITE_URL = "https://upstate-web.com"
+META_PIXEL_ID = ""
+GOOGLE_ADS_ID = ""

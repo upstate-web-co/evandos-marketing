@@ -1,0 +1,99 @@
+---
+title: "How we run Claude Code in CI for our clients' codebases"
+description: >-
+  Most agencies use AI as a typing assistant. We run it as a worker — dispatched
+  into client repositories from continuous integration, with results that come
+  back as pull requests. Here's the pattern, what it's for, and what it costs.
+publishedDate: '2026-04-25'
+draft: false
+---
+
+There's a difference between using AI to help you type faster and using AI to do work while you're not watching.
+
+Most agencies are still in the first category. Open Cursor or Claude Code, sit in front of it, type a prompt, watch the output, accept or reject. The model is a faster keyboard. You're still the one in the chair for the entire job.
+
+We moved into the second category about a month ago, and it changed what one person can run.
+
+This post is about the pattern we use, the four jobs we hand to it, and the honest tradeoffs.
+
+## The pattern in one paragraph
+
+Our admin app dispatches a GitHub Actions workflow on a client's repository. The workflow checks out the repo, installs dependencies, and runs Claude Code with a generated prompt — phase context, recent agent reports, file list, the picked design direction, whatever's relevant. Claude Code makes the changes, commits them to a branch, and either opens a pull request or POSTs the result back to admin via a signed webhook. Admin records the result in its job table and either notifies us, marks the milestone complete, or fires the next stage of the pipeline.
+
+That's the whole shape. Five lines, and they unlock everything below.
+
+The piece that took the longest to figure out was not the dispatching. It was the *reverse direction* — the workflow signaling back to admin that something happened. We use HMAC-SHA256 over the response body with a per-feature shared secret, the same pattern that makes Stripe webhooks survive in production. The receiver verifies the signature, looks up the job by ID, refuses if the project doesn't match, and updates state. That's the contract.
+
+## Four things we use it for
+
+The pattern is generic. The work it does is specific.
+
+### 1. Phase build
+
+A website project goes through five phases — discovery, design, build, review, launch. At the boundary between two of them, we generate a Claude Code prompt: here's the context, here's the file list, here's what the previous phase decided, do the work for the next phase, follow these constraints, open a PR.
+
+The dispatch fires. Forty minutes later, we get a PR from a branch like `phase/build-369e7a44`. We review it like any human pull request. Sometimes it's clean and we merge. Sometimes the model went the wrong direction and we send it back with a narrower prompt. Sometimes it ran out of turns mid-task and we pick up the half-done work manually.
+
+In a normal week, the dispatched runs are net-positive. In a complicated week, they're break-even — the review takes long enough that doing it ourselves wouldn't have been slower. The wins compound when there are multiple projects in flight.
+
+### 2. App infrastructure provisioning
+
+For app projects (Django + React on Fly.io), one of the milestones is *deploy the production environment*. Historically that meant: log into Fly, create the app, create the Postgres cluster, attach it, set the secrets, run migrations, deploy. Three hours of careful, error-prone manual work. One typo in a secret and you're debugging at midnight.
+
+We moved that to a workflow. Admin dispatches a one-click "provision app infra" action. The workflow runs `flyctl` against the client's repo with their secrets pre-encrypted, creates the cluster, attaches it, runs the deploy, and POSTs the result back. Six minutes end-to-end. If it fails halfway, the cleanup is in the workflow itself; the admin job table records exactly which step exploded.
+
+This was the pattern that made me realize the dispatch model was load-bearing. There was no reasonable path to running `flyctl` from a Cloudflare Worker — the runtime can't fork processes, the binary doesn't exist, the Fly Postgres API is documented through the CLI and nowhere else. The dispatch let us route around the limitation entirely. Workers do orchestration; CI runners do the heavy work.
+
+### 3. Prototype generation
+
+When a client moves from discovery into design, we want them to see something clickable. Not a Figma mockup. An actual deployed site that loads in their browser, looks like a serious effort at their brand, has navigation that works, and gives them something concrete to react to.
+
+That used to be the design phase of an entire build. Now it's a dispatched workflow. Admin sends Claude Code into a shared prototypes repo with a project ID, a brief from the questionnaire, and the picked design direction (colors, typography, layout pattern, motion vocabulary). Claude Code writes a single-route Astro preview, deploys it to Cloudflare Pages with HTTP basic auth, runs Playwright to screenshot the result, and POSTs everything back. The client sees a clickable preview the next morning at a private URL.
+
+We can iterate on the same branch. Three rounds of revision are budgeted; the fourth attempt parks the project for human design intervention. This is what *cheap iteration* looks like for design work.
+
+### 4. Playwright UX gates
+
+Before a project transitions from review to launch, we want to know that the deployed site actually works. Not "does the HTML render correctly" — does the contact form submit, does the navigation behave, does the booking flow complete the round trip, does the cart not silently no-op when you click checkout.
+
+Static HTML inspection cannot answer those questions. A human walkthrough can, but it's the kind of work that gets skipped under pressure.
+
+We dispatch a Playwright workflow on the deployed URL with a feature-mapped journey list (booking sites get the booking flow; commerce sites get the cart flow; auth-gated sites get the signup-and-login flow). Playwright clicks through each journey, captures screenshots and observations, POSTs everything back. A scoring agent reads the log and produces a 1-10 score with a flagged list of critical breaks. If the score is too low and there are critical breaks, the next phase advance is blocked retroactively until the issues resolve.
+
+The first time we ran this on a real site, it caught two no-op buttons on a checkout page that nobody had clicked since the cart code shipped. Static review missed them. Visual review missed them. Clicking them would have caught them. Now we click them every time.
+
+## Why this changes solo-operator economics
+
+The work an agency does breaks roughly into three layers:
+
+1. **Strategy and judgment** — what to build, what to leave out, when to push back, what the client actually needs vs. what they're asking for. Not automatable.
+2. **Generation** — the actual writing of code, copy, schemas, queries, configs. Highly automatable.
+3. **Review** — checking that the generated work is correct, fits the constraints, doesn't have obvious mistakes. Partially automatable, but the part that matters most is human.
+
+When you do all three layers yourself, you can run two or three projects in flight before the wheels come off. When the generation layer moves to dispatched workflows, the constraint moves up to your review queue — which is a much faster constraint to hit and a much faster constraint to clear.
+
+The result is that one person with this setup can run roughly the work of a four-person team, with better consistency, because the patterns are codified instead of held in heads. That's not a marketing claim. It's the math of where the bottleneck moves.
+
+The thing I want to be honest about is that this only works if you trust your review. The model produces output that looks plausible. Plausible output is not correct output. If your reviewer reads everything carefully — including the parts that look like the model just fixed itself, or the parts that look like the model didn't quite address the prompt — the throughput compounds. If your reviewer skims because the diff looks "fine," you're just shipping AI slop faster.
+
+## Honest tradeoffs
+
+Three things you should know if you want to try this.
+
+**Token budget.** Claude Code burns through messages quickly on large tasks. We cap at sixty turns per dispatch; past that, the model's context starts to fragment and the quality drops. A typical phase build runs $0.30 to $1.50 in API cost. Cheap, but it scales linearly with how much work you hand it. The budget is also a forcing function on prompt design — when you only get sixty turns, you write narrower prompts and get cleaner output.
+
+**Failure modes.** Sometimes a workflow runs the full budget and opens a PR with half the work done. Sometimes it finishes but the PR is a no-op because the model decided the existing code was correct (it wasn't). Sometimes it gets stuck in a tool-permission loop and never starts the actual work. We catch all of these in review. We've also added correlation between admin's job table and the GitHub Actions `workflow_run_id`, so every dispatched job is one click away from its run logs. That visibility is non-negotiable. Without it, the failures are silent and you don't notice for hours.
+
+**The pattern that didn't work.** Earlier we tried having the admin worker call Claude directly — non-headless, in-process, single Cloudflare Worker request handling the whole thing. It hits the 30-second runtime limit on anything substantive. We tried streaming and chunking; the reliability was worse than the dispatch pattern. Workflow_dispatch with a webhook callback is genuinely the shape that scales. If you find yourself trying to do this work inside a serverless function, stop and dispatch a workflow.
+
+## The shape this implies
+
+The agency model is changing in a quiet way. The boundary between *companies that ship code* and *companies that ship people who ship code* is moving. Two years ago, an agency was a team of people who used computers to write code. Today, an agency can be one or two people who orchestrate a large amount of computer work and review it carefully.
+
+The deliverable hasn't changed. The client gets a working site or a working app. The reviewability hasn't changed — every PR is human-reviewed before it merges, every infrastructure action is logged, every gate has a human approval. What changed is the ratio of generation hours to review hours.
+
+If you're a client, you should care about this for one reason. The agency that uses this pattern can afford to be more careful with your project than the agency that's typing every line by hand. Not because the agency is faster, but because the agency has more time per project to think.
+
+If you're another agency, you should care for the opposite reason. The competitive shape of this work is shifting. The teams that figure out how to run AI as a worker — not as a typing assistant — are going to ship more, with better quality, on smaller billings, than teams that don't.
+
+We started doing this a month ago. We are still figuring it out. The patterns above are the ones that survived the first round of "this kind of works" and made it into production. There will be more.

@@ -1,0 +1,98 @@
+---
+interface Props {
+  source?: string
+  heading?: string
+  subtext?: string
+}
+
+const {
+  source = 'website',
+  heading = 'Get web tips for your business',
+  subtext = 'Occasional tips on web design, SEO, and digital marketing for small businesses. No spam, unsubscribe anytime.',
+} = Astro.props
+---
+<div class="newsletter-signup bg-white/60 border border-charcoal/10 rounded-xl p-6 md:p-8 shadow-sm">
+  <h3 class="font-serif text-lg mb-1">{heading}</h3>
+  <p class="text-sm text-charcoal/60 mb-4">{subtext}</p>
+
+  <form class="newsletter-form flex flex-col gap-3" data-source={source}>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="you@business.com"
+        class="flex-1 px-4 py-2.5 border border-charcoal/20 rounded-lg bg-white text-sm focus:outline-none focus:border-rust focus:ring-1 focus:ring-rust"
+      />
+      <button
+        type="submit"
+        class="newsletter-btn px-5 py-2.5 bg-rust text-white text-sm font-medium rounded-lg hover:bg-rust-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 whitespace-nowrap"
+      >
+        Subscribe
+      </button>
+    </div>
+    <select
+      name="industry"
+      class="w-full sm:w-auto px-4 py-2 border border-charcoal/10 rounded-lg bg-white text-sm text-charcoal/50 focus:outline-none focus:border-rust"
+    >
+      <option value="">What type of business? (optional)</option>
+      <option value="retail">Retail / Boutique / Shop</option>
+      <option value="food-service">Restaurant / Food & Beverage</option>
+      <option value="personal-care">Salon / Barbershop / Spa</option>
+      <option value="professional-services">Professional Services</option>
+      <option value="home-services">Home Services (landscaping, HVAC, etc.)</option>
+      <option value="other">Other</option>
+    </select>
+  </form>
+
+  <p class="newsletter-message hidden mt-3 text-sm"></p>
+</div>
+
+<script>
+  document.querySelectorAll('.newsletter-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const formEl = e.currentTarget as HTMLFormElement
+      const btn = formEl.querySelector('.newsletter-btn') as HTMLButtonElement
+      const msgEl = formEl.closest('.newsletter-signup')?.querySelector('.newsletter-message') as HTMLElement
+      const email = (formEl.elements.namedItem('email') as HTMLInputElement).value.trim()
+      const source = formEl.dataset.source ?? 'website'
+      const industryEl = formEl.elements.namedItem('industry') as HTMLSelectElement | null
+      const industry = industryEl?.value || undefined
+
+      btn.disabled = true
+      btn.textContent = 'Subscribing...'
+      msgEl.classList.add('hidden')
+
+      try {
+        const payload: Record<string, string | undefined> = { email, source }
+        if (industry) payload.industry = industry
+
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+
+        if (!res.ok) throw new Error(data.error ?? 'Something went wrong')
+
+        msgEl.textContent = data.message ?? 'Subscribed!'
+        msgEl.className = 'newsletter-message mt-3 text-sm text-[#4A6741]'
+        msgEl.classList.remove('hidden')
+        formEl.reset()
+
+        // Fire tracking pixel event
+        if (typeof window.fbq === 'function') window.fbq('track', 'Subscribe')
+        if (typeof window.gtag === 'function') window.gtag('event', 'sign_up', { method: 'newsletter' })
+      } catch (err) {
+        msgEl.textContent = err instanceof Error ? err.message : 'Something went wrong'
+        msgEl.className = 'newsletter-message mt-3 text-sm text-red-600'
+        msgEl.classList.remove('hidden')
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Subscribe'
+      }
+    })
+  })
+</script>

@@ -1,0 +1,284 @@
+---
+export const prerender = true
+
+import { createReader } from '@keystatic/core/reader'
+import Markdoc from '@markdoc/markdoc'
+import keystaticConfig from '../../../keystatic.config'
+import PublicLayout from '../../layouts/PublicLayout.astro'
+import NewsletterSignup from '../../components/NewsletterSignup.astro'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), keystaticConfig)
+  const work = await reader.collections.work.all()
+  return work
+    .filter((item) => !item.entry.draft)
+    .map((item) => ({
+      params: { slug: item.slug },
+    }))
+}
+
+const { slug } = Astro.params
+
+if (!slug) {
+  return Astro.redirect('/work')
+}
+
+const study = await reader.collections.work.read(slug)
+
+if (!study || study.draft) {
+  return Astro.redirect('/work')
+}
+
+const markdocContent = await study.content()
+const transformed = Markdoc.transform(markdocContent.node)
+const rendered = Markdoc.renderers.html(transformed)
+
+const SERVICE_LABELS: Record<string, string> = {
+  design: 'Web Design',
+  development: 'Web Development',
+  seo: 'SEO',
+  cms: 'CMS Setup',
+  ecommerce: 'E-commerce',
+  migration: 'Migration',
+  'marketing-admin': 'Marketing Admin',
+  social: 'Social Media',
+  analytics: 'Analytics',
+}
+
+const caseStudySchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: study.title,
+  description: study.description,
+  datePublished: study.publishedDate,
+  author: {
+    '@type': 'Organization',
+    name: 'Upstate Web Co.',
+    url: 'https://upstate-web.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Upstate Web Co.',
+    url: 'https://upstate-web.com',
+  },
+  url: `https://upstate-web.com/work/${slug}`,
+}
+
+const hasScreenshots = study.screenshots && study.screenshots.length > 0
+
+// Mobile mockup image mapping (slug → filename in /images/work/mobile/)
+const MOBILE_MOCKUP_MAP: Record<string, string> = {
+  'fade-cuts-barbershop': 'fade-house',
+  'peach-thread-boutique': 'peach-thread',
+  'lookaround-home-services': 'lookaround',
+  'shira-brand-website': 'shira',
+  'chama-saas-migration': 'mychama',
+}
+const mobileMockupFile = slug ? MOBILE_MOCKUP_MAP[slug] : undefined
+const hasMobileMockup = !!mobileMockupFile
+---
+<PublicLayout title={study.title} description={study.description} schema={caseStudySchema} ogImage={study.ogImage || undefined}>
+  <!-- Hero image with gradient fade into content -->
+  <div class="max-w-4xl mx-auto -mt-4 mb-2">
+    <a href="/work" class="text-sm text-[#B85C38] hover:underline inline-flex items-center gap-1 mb-5">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+      Back to work
+    </a>
+
+    <div class="relative rounded-2xl overflow-hidden">
+      {study.ogImage ? (
+        <div class="h-44 sm:h-52 md:h-64 relative">
+          <img
+            src={study.ogImage}
+            alt={study.client}
+            class="absolute inset-0 w-full h-full object-cover object-top"
+          />
+          <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#F7F4EF]" />
+        </div>
+      ) : (
+        <div class="h-44 sm:h-52 md:h-64 relative bg-gradient-to-br from-[#B85C38]/8 to-[#1A1814]/5">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-6xl font-bold text-[#B85C38]/8">{study.client}</span>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F7F4EF]" />
+        </div>
+      )}
+    </div>
+  </div>
+
+  <article class="max-w-3xl">
+    <!-- Header -->
+    <header class="mb-10">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-medium text-[#B85C38] bg-[#B85C38]/10 px-2.5 py-1 rounded">{study.industry}</span>
+        {study.timeline && (
+          <span class="text-xs text-[#1A1814]/40 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            {study.timeline}
+          </span>
+        )}
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">{study.title}</h1>
+      <p class="text-lg text-[#1A1814]/60 leading-relaxed mb-5">{study.description}</p>
+
+      {study.liveUrl && (
+        <a
+          href={study.liveUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-[#B85C38] text-[#B85C38] text-sm font-medium rounded-lg hover:bg-[#B85C38] hover:text-white transition-all duration-200"
+        >
+          Visit the site
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      )}
+    </header>
+
+    <!-- Challenge & Solution -->
+    <section class="mb-14">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-[#1A1814]/[0.03] rounded-xl p-6 border border-[#1A1814]/5">
+          <h2 class="text-xs font-semibold text-[#B85C38] uppercase tracking-widest mb-3">The Challenge</h2>
+          <p class="text-sm text-[#1A1814]/70 leading-relaxed">{study.challenge}</p>
+        </div>
+        <div class="bg-[#4A6741]/[0.03] rounded-xl p-6 border border-[#4A6741]/10">
+          <h2 class="text-xs font-semibold text-[#4A6741] uppercase tracking-widest mb-3">Our Approach</h2>
+          <p class="text-sm text-[#1A1814]/70 leading-relaxed">{study.solution}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Results + Mobile Mockup -->
+    {study.results.length > 0 && (
+      <section class="mb-14">
+        <div class:list={['flex gap-8 items-start', hasMobileMockup ? 'flex-col lg:flex-row' : '']}>
+          <!-- Results card -->
+          <div class:list={['border border-[#4A6741]/20 rounded-xl p-6 md:p-8 bg-[#4A6741]/[0.02]', hasMobileMockup ? 'flex-1' : 'w-full']}>
+            <h2 class="text-xs font-semibold text-[#4A6741] uppercase tracking-widest mb-5">Key Results</h2>
+            <div class="grid sm:grid-cols-2 gap-4">
+              {study.results.map((result) => (
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-[#4A6741] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-sm font-medium text-[#1A1814]/80">{result}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Floating phone mockup -->
+          {hasMobileMockup && (
+            <div class="shrink-0 mx-auto lg:mx-0 lg:-mt-4">
+              <div class="phone-mockup relative w-[180px] h-[390px] rounded-[32px] border-[3px] border-[#1A1814]/80 bg-black shadow-xl overflow-hidden">
+                <!-- Dynamic Island -->
+                <div class="absolute top-[6px] left-1/2 -translate-x-1/2 w-[60px] h-[18px] rounded-[10px] bg-black z-10" />
+                <!-- Screenshot -->
+                <img
+                  src={`/images/work/mobile/${mobileMockupFile}.png`}
+                  alt={`${study.client} on mobile`}
+                  class="w-full h-full object-cover object-top"
+                  loading="lazy"
+                />
+              </div>
+              <p class="text-[10px] text-[#1A1814]/30 text-center mt-2 font-medium tracking-wide uppercase">Mobile view</p>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Services -->
+    {study.services.length > 0 && (
+      <section class="mb-14">
+        <h2 class="text-xs font-semibold text-[#1A1814]/40 uppercase tracking-widest mb-3">Services Provided</h2>
+        <div class="flex flex-wrap gap-2">
+          {study.services.map((service) => (
+            <span class="text-xs font-medium text-[#1A1814]/50 bg-[#1A1814]/[0.04] px-3 py-1.5 rounded-full border border-[#1A1814]/5">
+              {SERVICE_LABELS[service] || service}
+            </span>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Divider before full content -->
+    <hr class="border-[#1A1814]/10 mb-14" />
+
+    <!-- Full case study content -->
+    <section class="mb-14">
+      <div class="case-study-content max-w-none" set:html={rendered} />
+    </section>
+
+    <!-- Testimonial -->
+    {study.testimonial?.quote && (
+      <section class="mb-14">
+        <blockquote class="border-l-4 border-[#B85C38] pl-6 py-5 bg-[#B85C38]/[0.04] rounded-r-xl">
+          <p class="text-lg italic text-[#1A1814]/80 leading-relaxed mb-4">"{study.testimonial.quote}"</p>
+          <footer class="text-sm">
+            <strong class="text-[#1A1814]">{study.testimonial.name}</strong>
+            {study.testimonial.role && (
+              <span class="text-[#1A1814]/50"> — {study.testimonial.role}</span>
+            )}
+          </footer>
+        </blockquote>
+      </section>
+    )}
+
+    <!-- Page screenshots -->
+    {hasScreenshots && (
+      <section class="mb-14">
+        <h2 class="text-xs font-semibold text-[#1A1814]/40 uppercase tracking-widest mb-5">More from this project</h2>
+        <div class:list={[
+          'grid gap-4',
+          study.screenshots!.length === 1 ? 'grid-cols-1 max-w-md' : study.screenshots!.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3',
+        ]}>
+          {study.screenshots!.map((src, i) => (
+            <div class="rounded-xl overflow-hidden border border-[#1A1814]/10 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+              <img
+                src={src}
+                alt={`${study.client} page ${i + 1}`}
+                class="w-full h-auto object-cover aspect-video"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+        {study.liveUrl && (
+          <div class="mt-5 text-center">
+            <a
+              href={study.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-[#B85C38] font-medium hover:underline inline-flex items-center gap-1.5"
+            >
+              View the full site
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+        )}
+      </section>
+    )}
+  </article>
+
+  <!-- CTA -->
+  <div class="max-w-3xl mt-4">
+    <div class="bg-[#1A1814] text-[#F7F4EF] rounded-2xl p-8 md:p-12">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Want results like these?</h2>
+      <p class="text-[#F7F4EF]/70 mb-6">Tell us about your business and we'll build something worth showing off.</p>
+      <a href="/get-started" class="inline-flex items-center px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+        Get started
+      </a>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mt-8">
+    <NewsletterSignup source="work" heading="Like what you see?" subtext="Get web tips and project updates for small businesses." />
+  </div>
+</PublicLayout>

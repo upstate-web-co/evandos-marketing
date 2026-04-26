@@ -1,0 +1,80 @@
+---
+// Pixel IDs from wrangler.toml vars — only render if configured
+// C7: Tracking pixels are gated behind cookie consent
+const env = (Astro.locals as Record<string, any>).runtime?.env ?? {}
+const metaPixelId = env.META_PIXEL_ID ?? ''
+const googleAdsId = env.GOOGLE_ADS_ID ?? ''
+const hasPixels = !!(metaPixelId || googleAdsId)
+---
+
+{hasPixels && (
+  <script is:inline define:vars={{ metaPixelId, googleAdsId }}>
+    // Cookie consent gate — pixels only load after user accepts
+    function hasConsent() {
+      return document.cookie.split(';').some(c => c.trim().startsWith('uwc_consent=accepted'))
+    }
+
+    function loadPixels() {
+      if (metaPixelId) {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', metaPixelId);
+        fbq('track', 'PageView');
+      }
+      if (googleAdsId) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', googleAdsId);
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + googleAdsId;
+        document.head.appendChild(s);
+      }
+    }
+
+    if (hasConsent()) {
+      loadPixels()
+    }
+    // Consent banner calls window.__uwcLoadPixels() when user accepts
+    window.__uwcLoadPixels = loadPixels
+  </script>
+)}
+
+{hasPixels && (
+  <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-[#1A1814] text-white p-4 z-50 shadow-lg" style="display:none" role="dialog" aria-label="Cookie consent">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-sm">
+        <p>We use cookies to measure site traffic and improve your experience. No personal data is sold or shared with advertisers.</p>
+        <a href="/privacy" class="underline text-[#B85C38]">Privacy Policy</a>
+      </div>
+      <div class="flex gap-3 flex-shrink-0">
+        <button id="cookie-reject" class="text-sm px-5 py-2.5 bg-[#F7F4EF] text-[#1A1814] font-medium rounded-lg hover:bg-white transition-colors">Reject All</button>
+        <button id="cookie-accept" class="text-sm px-5 py-2.5 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">Accept All</button>
+      </div>
+    </div>
+  </div>
+  <script is:inline>
+    (function() {
+      if (document.cookie.split(';').some(c => c.trim().startsWith('uwc_consent='))) return
+      var banner = document.getElementById('cookie-banner')
+      if (banner) banner.style.display = 'block'
+
+      document.getElementById('cookie-accept')?.addEventListener('click', function() {
+        document.cookie = 'uwc_consent=accepted; path=/; max-age=31536000; SameSite=Lax'
+        banner.style.display = 'none'
+        if (window.__uwcLoadPixels) window.__uwcLoadPixels()
+      })
+      document.getElementById('cookie-reject')?.addEventListener('click', function() {
+        document.cookie = 'uwc_consent=rejected; path=/; max-age=31536000; SameSite=Lax'
+        banner.style.display = 'none'
+      })
+    })()
+  </script>
+)}

@@ -1,0 +1,55 @@
+---
+/**
+ * Micro-conversion tracking for GA4.
+ * Tracks: service tier clicks, FAQ expands, CTA clicks, case study views, scroll depth.
+ * Only fires if gtag is loaded (requires cookie consent).
+ */
+---
+<script is:inline>
+  (function() {
+    function track(event, params) {
+      if (typeof gtag === 'function') gtag('event', event, params)
+    }
+
+    // Track service tier clicks (from services page pricing cards)
+    document.querySelectorAll('a[href="/get-started"]').forEach(function(link) {
+      link.addEventListener('click', function() {
+        var tier = this.closest('[data-tier]')?.getAttribute('data-tier') || 'unknown'
+        var section = this.closest('section')
+        var label = section?.querySelector('h2')?.textContent || 'cta'
+        track('select_content', { content_type: 'cta', item_id: 'get_started', tier: tier, section: label })
+      })
+    })
+
+    // Track FAQ expands
+    document.querySelectorAll('details').forEach(function(detail) {
+      detail.addEventListener('toggle', function() {
+        if (this.open) {
+          var question = this.querySelector('summary h2')?.textContent || this.querySelector('summary')?.textContent || ''
+          track('select_content', { content_type: 'faq', item_id: question.trim().substring(0, 100) })
+        }
+      })
+    })
+
+    // Track case study clicks
+    document.querySelectorAll('a[href^="/work/"]').forEach(function(link) {
+      link.addEventListener('click', function() {
+        var slug = this.getAttribute('href').replace('/work/', '')
+        track('select_content', { content_type: 'case_study', item_id: slug })
+      })
+    })
+
+    // Scroll depth tracking (25%, 50%, 75%, 100%)
+    var scrollMarks = { 25: false, 50: false, 75: false, 100: false }
+    window.addEventListener('scroll', function() {
+      var pct = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100)
+      var marks = [25, 50, 75, 100]
+      for (var i = 0; i < marks.length; i++) {
+        if (pct >= marks[i] && !scrollMarks[marks[i]]) {
+          scrollMarks[marks[i]] = true
+          track('scroll', { percent_scrolled: marks[i], page_path: window.location.pathname })
+        }
+      }
+    }, { passive: true })
+  })()
+</script>

@@ -1,0 +1,194 @@
+---
+import '../styles/global.css'
+import SEOHead from '../components/SEOHead.astro'
+import TrackingPixels from '../components/TrackingPixels.astro'
+import ExitIntentPopup from '../components/ExitIntentPopup.astro'
+// ChatWidget removed — replaced by hybrid AI (HeroAsk on home, InlineChat on pages)
+import MicroConversions from '../components/MicroConversions.astro'
+import { getSeoOverride } from '../lib/seo'
+
+interface Props {
+  title: string
+  description?: string
+  ogImage?: string
+  schema?: Record<string, unknown>
+}
+
+const defaultDescription = 'Custom websites, stores, and apps for small businesses and solopreneurs. No templates — built from scratch, fast, and designed to bring you customers.'
+
+const props = Astro.props
+const currentPath = Astro.url.pathname
+
+// Fetch SEO overrides from D1 (gracefully fails for prerendered pages)
+const envRuntime = (Astro.locals as Record<string, any>).runtime?.env
+const db = envRuntime?.DB
+const seoOverride = await getSeoOverride(db, currentPath)
+
+const title = seoOverride?.title || props.title
+const description = seoOverride?.description || props.description || defaultDescription
+const ogImage = props.ogImage
+const schema = seoOverride?.schema_json ? JSON.parse(seoOverride.schema_json) : props.schema
+const noindex = seoOverride?.noindex === 1
+
+const navLinks = [
+  { href: '/services', label: 'Services' },
+  { href: '/services/app-development', label: 'Apps' },
+  { href: '/work', label: 'Work' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: 'Contact' },
+]
+---
+<html lang="en">
+  <head>
+    <SEOHead title={title} description={description} ogImage={ogImage} schema={schema} noindex={noindex} />
+    <TrackingPixels />
+  </head>
+  <body class="bg-cream text-charcoal min-h-screen font-sans antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-rust focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">Skip to content</a>
+    <nav class="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between" aria-label="Main navigation">
+      <a href="/" class="nav-wordmark text-xl font-serif tracking-tight text-rust">
+        Upstate Web Co.
+      </a>
+      <!-- Mobile menu button -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden relative z-50 p-2 -mr-2"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        <svg id="menu-hamburger" class="w-6 h-6 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="menu-close" class="w-6 h-6 absolute inset-0 m-auto opacity-0 transition-opacity duration-200 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+        {navLinks.map(({ href, label }) => (
+          <a
+            href={href}
+            class:list={[
+              'transition-colors',
+              currentPath.startsWith(href) ? 'text-rust' : 'text-charcoal/70 hover:text-rust',
+            ]}
+          >
+            {label}
+          </a>
+        ))}
+        <a
+          href="/get-started"
+          class="ml-2 px-4 py-2 bg-rust text-white rounded-lg hover:bg-rust-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+        >
+          Get Started
+        </a>
+      </div>
+    </nav>
+    <!-- Mobile nav overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-charcoal flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
+      <nav class="flex flex-col items-center gap-6">
+        {navLinks.map(({ href, label }) => (
+          <a
+            href={href}
+            class:list={[
+              'text-2xl font-serif transition-colors',
+              currentPath.startsWith(href) ? 'text-rust' : 'text-cream/80 hover:text-rust',
+            ]}
+          >
+            {label}
+          </a>
+        ))}
+        <a href="/get-started" class="mt-4 px-8 py-3 bg-rust text-white font-medium rounded-lg hover:bg-rust-dark transition-colors text-lg">
+          Get Started
+        </a>
+      </nav>
+    </div>
+
+    <main id="main-content" class="max-w-6xl mx-auto px-6 py-8">
+      <slot />
+    </main>
+
+    <footer class="border-t border-charcoal/10 mt-16">
+      <div class="max-w-6xl mx-auto px-6 py-12">
+        <div class="grid md:grid-cols-3 gap-8">
+          <div>
+            <p class="font-serif text-lg mb-2">Upstate Web Co.</p>
+            <p class="text-sm text-charcoal/60">
+              Custom websites for small businesses<br />and solopreneurs.
+            </p>
+          </div>
+          <div>
+            <p class="font-semibold text-sm mb-3">Pages</p>
+            <div class="flex flex-col gap-2 text-sm text-charcoal/60">
+              <a href="/services" class="hover:text-rust transition-colors">Services</a>
+              <a href="/work" class="hover:text-rust transition-colors">Work</a>
+              <a href="/blog" class="hover:text-rust transition-colors">Blog</a>
+              <a href="/skills" class="hover:text-rust transition-colors">Agent Skills</a>
+              <a href="/about" class="hover:text-rust transition-colors">About</a>
+              <a href="/privacy" class="hover:text-rust transition-colors">Privacy Policy</a>
+            </div>
+          </div>
+          <div>
+            <p class="font-semibold text-sm mb-3">Get in touch</p>
+            <div class="flex flex-col gap-2 text-sm text-charcoal/60">
+              <a href="mailto:hello@upstate-web.com" class="hover:text-rust transition-colors">hello@upstate-web.com</a>
+              <a href="/contact" class="hover:text-rust transition-colors">Contact form</a>
+              <p>Greenville, SC</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-charcoal/10 text-sm text-charcoal/40">
+          <p>&copy; {new Date().getFullYear()} Upstate Web Co. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <MicroConversions />
+    <ExitIntentPopup />
+
+    <script>
+      const btn = document.getElementById('mobile-menu-btn')
+      const menu = document.getElementById('mobile-menu')
+      const hamburger = document.getElementById('menu-hamburger')
+      const closeIcon = document.getElementById('menu-close')
+
+      btn?.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true'
+        btn.setAttribute('aria-expanded', String(!expanded))
+
+        if (!expanded) {
+          menu?.classList.remove('opacity-0', 'pointer-events-none')
+          menu?.classList.add('opacity-100')
+          hamburger?.classList.add('opacity-0')
+          closeIcon?.classList.remove('opacity-0')
+          document.body.style.overflow = 'hidden'
+        } else {
+          menu?.classList.add('opacity-0', 'pointer-events-none')
+          menu?.classList.remove('opacity-100')
+          hamburger?.classList.remove('opacity-0')
+          closeIcon?.classList.add('opacity-0')
+          document.body.style.overflow = ''
+        }
+      })
+    </script>
+    <!-- Scroll reveal observer -->
+    <script>
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (!prefersReduced) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible')
+              observer.unobserve(entry.target)
+            }
+          })
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' })
+        document.querySelectorAll('.reveal, .stagger-children').forEach(el => observer.observe(el))
+      } else {
+        document.querySelectorAll('.reveal, .stagger-children').forEach(el => el.classList.add('visible'))
+      }
+    </script>
+  </body>
+</html>

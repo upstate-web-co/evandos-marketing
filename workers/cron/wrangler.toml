@@ -1,0 +1,14 @@
+name = "uwc-cron-worker"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+[triggers]
+crons = [
+  "*/5 * * * *",  # Social post queue — every 5 minutes
+  "0 2 * * *",    # Analytics snapshot — daily at 2am UTC
+  "0 9 * * *",    # Nurture emails — daily at 9am UTC
+]
+
+[vars]
+PAGES_URL = "https://upstate-web.com"
+# CRON_SECRET — set as a secret: wrangler secret put CRON_SECRET

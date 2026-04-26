@@ -1,0 +1,141 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+---
+<PublicLayout title="Contact" description="Get in touch with Upstate Web Co. for a free website quote. Custom websites, stores, and apps for small businesses and solopreneurs.">
+  <!-- Two paths -->
+  <section class="py-8">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Let's talk</h1>
+    <p class="text-lg text-[#1A1814]/60 mb-8 max-w-2xl">
+      Whether you're ready to start or just have questions, we're here. Pick the path that fits.
+    </p>
+    <div class="grid md:grid-cols-2 gap-6 max-w-3xl mb-12">
+      <a href="/get-started" class="block border border-[#B85C38] rounded-xl p-6 hover:bg-[#B85C38]/5 transition-colors group">
+        <p class="text-xs font-medium text-[#B85C38] uppercase tracking-wider mb-2">Ready to build</p>
+        <h2 class="text-lg font-bold mb-2 group-hover:text-[#B85C38] transition-colors">Start a project</h2>
+        <p class="text-sm text-[#1A1814]/60">Tell us about your business, budget, and timeline. We'll send a recommendation within one business day.</p>
+        <p class="text-sm text-[#B85C38] font-medium mt-3">Fill out the form &rarr;</p>
+      </a>
+      <div class="border border-[#1A1814]/10 rounded-xl p-6">
+        <p class="text-xs font-medium text-[#1A1814]/40 uppercase tracking-wider mb-2">Just exploring</p>
+        <h2 class="text-lg font-bold mb-2">Send us a message</h2>
+        <p class="text-sm text-[#1A1814]/60">Quick question? Not sure what you need? Just want to say hello? Use the form below — no commitment required.</p>
+        <p class="text-sm text-[#1A1814]/40 font-medium mt-3">Scroll down &darr;</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8 max-w-2xl">
+    <h2 class="text-2xl font-bold mb-4">Send a message</h2>
+    <p class="text-[#1A1814]/60 mb-8">
+      Ask anything — pricing, timelines, whether we're the right fit. We reply within one business day.
+    </p>
+
+    <form id="contact-form" class="space-y-6">
+      <div>
+        <label for="name" class="block text-sm font-medium mb-1">Name</label>
+        <input type="text" id="name" name="name" required
+          class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+        />
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" id="email" name="email" required
+          class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+        />
+      </div>
+      <div>
+        <label for="business" class="block text-sm font-medium mb-1">Business name</label>
+        <input type="text" id="business" name="business"
+          class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+        />
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-medium mb-1">Tell us about your project</label>
+        <textarea id="message" name="message" rows="5" required minlength="10"
+          class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] resize-none"
+        ></textarea>
+      </div>
+      <button type="submit" id="submit-btn"
+        class="w-full px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Send message
+      </button>
+      <p class="text-xs text-[#1A1814]/40 text-center">
+        No spam. We'll reply within one business day.
+      </p>
+    </form>
+
+    <!-- Success message -->
+    <div id="success-msg" class="hidden py-8 text-center" role="alert">
+      <div class="bg-[#4A6741]/10 border border-[#4A6741]/30 rounded-xl p-8">
+        <p class="text-xl font-semibold text-[#4A6741] mb-2">Message sent!</p>
+        <p class="text-[#1A1814]/60">We'll get back to you within one business day.</p>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div id="error-msg" class="hidden mt-4" role="alert">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-sm text-red-700" id="error-text">Something went wrong. Please try again.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 border-t border-[#1A1814]/10 max-w-2xl">
+    <h2 class="text-lg font-semibold mb-4">Or reach us directly</h2>
+    <div class="space-y-2 text-[#1A1814]/60">
+      <p>
+        <a href="mailto:hello@upstate-web.com" class="text-[#B85C38] hover:underline">hello@upstate-web.com</a>
+      </p>
+      <p>Greenville, South Carolina</p>
+    </div>
+  </section>
+</PublicLayout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement
+  const successMsg = document.getElementById('success-msg')!
+  const errorMsg = document.getElementById('error-msg')!
+  const errorText = document.getElementById('error-text')!
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    errorMsg.classList.add('hidden')
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Sending...'
+
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value.trim(),
+      email: (form.elements.namedItem('email') as HTMLInputElement).value.trim(),
+      business: (form.elements.namedItem('business') as HTMLInputElement).value.trim(),
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value.trim(),
+    }
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const json = await res.json()
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Something went wrong')
+      }
+
+      form.classList.add('hidden')
+      successMsg.classList.remove('hidden')
+
+      // Fire conversion pixels
+      if (typeof window.fbq === 'function') window.fbq('track', 'Lead')
+      if (typeof window.gtag === 'function') window.gtag('event', 'conversion', { send_to: 'contact_form' })
+    } catch (err) {
+      errorText.textContent = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      errorMsg.classList.remove('hidden')
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Send message'
+    }
+  })
+</script>

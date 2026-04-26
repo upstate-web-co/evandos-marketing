@@ -1,0 +1,77 @@
+---
+interface Props {
+  packageName: string
+  packageDescription: string
+  features: string[]
+  projectTitle: string
+  projectSlug: string
+  projectImage: string
+  projectResult: string
+  projectIndustry: string
+  externalUrl?: string
+  secondaryLink?: { label: string; href: string }
+  reversed?: boolean
+}
+
+const {
+  packageName,
+  packageDescription,
+  features,
+  projectTitle,
+  projectSlug,
+  projectImage,
+  projectResult,
+  projectIndustry,
+  externalUrl,
+  secondaryLink,
+  reversed = false,
+} = Astro.props
+---
+
+<div class:list={['grid md:grid-cols-2 gap-8 md:gap-12 items-center', reversed && 'md:[&>*:first-child]:order-2']}>
+  <!-- Package Info -->
+  <div>
+    <h3 class="font-serif text-xl md:text-2xl mb-2">{packageName}</h3>
+    <p class="text-sm text-charcoal/60 mb-4 leading-relaxed">{packageDescription}</p>
+    <ul class="space-y-2 mb-6">
+      {features.map((f) => (
+        <li class="flex items-start gap-2 text-sm text-charcoal/70">
+          <svg class="w-4 h-4 text-sage mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" /></svg>
+          {f}
+        </li>
+      ))}
+    </ul>
+    <a href="/services" class="text-rust font-medium text-sm hover:underline">
+      View pricing details &rarr;
+    </a>
+  </div>
+
+  <!-- Project Showcase -->
+  <a href={`/work/${projectSlug}`} class="group block border border-charcoal/10 rounded-xl overflow-hidden hover:border-rust/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div class="aspect-video overflow-hidden">
+      <img
+        src={projectImage}
+        alt={`${projectTitle} website`}
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+    </div>
+    <div class="p-5">
+      <span class="text-xs font-medium text-rust bg-rust/10 px-2 py-1 rounded">{projectIndustry}</span>
+      <h4 class="text-lg font-bold mt-2 mb-1 group-hover:text-rust transition-colors">{projectTitle}</h4>
+      <p class="text-sm text-charcoal/60">{projectResult}</p>
+      {(externalUrl || secondaryLink) && (
+        <div class="flex gap-4 mt-3 text-xs font-medium">
+          {externalUrl && (
+            <span class="text-rust">Visit site &rarr;</span>
+          )}
+          {secondaryLink && (
+            <a href={secondaryLink.href} class="text-charcoal/50 hover:text-rust transition-colors" onclick="event.stopPropagation()">
+              {secondaryLink.label} &rarr;
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </a>
+</div>

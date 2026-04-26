@@ -1,0 +1,38 @@
+{
+  "name": "uwc-marketing-site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "astro build && wrangler pages deploy dist --project-name uwc-marketing-site --branch main --commit-dirty=true",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.4.0",
+    "@astrojs/markdoc": "^0.12.5",
+    "@astrojs/react": "^4.2.1",
+    "@astrojs/sitemap": "^3.3.1",
+    "@keystatic/astro": "^5.0.4",
+    "@keystatic/core": "^0.5.46",
+    "@tailwindcss/vite": "^4.1.4",
+    "astro": "^5.7.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "resend": "^6.9.4",
+    "tailwindcss": "^4.1.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "better-sqlite3": "^12.8.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.1",
+    "wrangler": "^4.14.4"
+  }
+}

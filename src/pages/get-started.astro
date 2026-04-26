@@ -1,0 +1,582 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import GetStartedChat from '../components/chat/GetStartedChat'
+---
+<PublicLayout title="Get Started" description="Tell us about your project and get a free quote from Upstate Web Co. Custom websites, stores, and apps for small businesses and solopreneurs.">
+  <section class="py-8 max-w-2xl">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Start your project</h1>
+    <p class="text-lg text-[#1A1814]/60 mb-6">
+      Answer a few questions about your business and what you need. We'll review your details and get back to you within one business day with a recommendation and fixed-price quote.
+    </p>
+
+    <!-- Social proof -->
+    <div class="mb-8 p-4 bg-[#4A6741]/5 border border-[#4A6741]/15 rounded-xl">
+      <p class="text-sm text-[#1A1814]/70">
+        We've built for barbershops, boutiques, fitness studios, personal chefs, landscapers, and more. Every project is custom-coded, fully yours, and built to last.
+      </p>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <a href="/work" class="text-xs font-medium text-[#B85C38] hover:underline">See our work &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Chat alternative -->
+    <div class="mb-10">
+      <GetStartedChat client:load />
+    </div>
+
+    <div class="relative mb-8">
+      <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#1A1814]/10"></div></div>
+      <div class="relative flex justify-center"><span class="bg-[#F7F4EF] px-4 text-sm text-[#1A1814]/40">or fill out the form</span></div>
+    </div>
+
+    <!-- Progress indicator -->
+    <div class="flex items-center gap-2 mb-8" id="progress-bar">
+      <div class="flex items-center gap-2 text-sm font-medium text-[#B85C38]" data-step="1">
+        <span class="w-7 h-7 rounded-full bg-[#B85C38] text-white flex items-center justify-center text-xs">1</span>
+        About you
+      </div>
+      <div class="h-px flex-1 bg-[#1A1814]/15"></div>
+      <div class="flex items-center gap-2 text-sm font-medium text-[#1A1814]/30" data-step="2">
+        <span class="w-7 h-7 rounded-full bg-[#1A1814]/10 text-[#1A1814]/40 flex items-center justify-center text-xs">2</span>
+        Your project
+      </div>
+      <div class="h-px flex-1 bg-[#1A1814]/15"></div>
+      <div class="flex items-center gap-2 text-sm font-medium text-[#1A1814]/30" data-step="3">
+        <span class="w-7 h-7 rounded-full bg-[#1A1814]/10 text-[#1A1814]/40 flex items-center justify-center text-xs">3</span>
+        Timeline
+      </div>
+    </div>
+
+    <form id="intake-form" class="space-y-6">
+      <!-- Honeypot -->
+      <div class="absolute -left-[9999px]" aria-hidden="true">
+        <input type="text" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name="_loaded_at" id="_loaded_at" />
+
+      <!-- Step 1: About You -->
+      <div id="step-1">
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium mb-1">Your name <span class="text-red-500">*</span></label>
+            <input type="text" id="name" name="name" required
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium mb-1">Email <span class="text-red-500">*</span></label>
+            <input type="email" id="email" name="email" required
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+            />
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium mb-1">Phone <span class="text-[#1A1814]/40 font-normal">(optional)</span></label>
+            <input type="tel" id="phone" name="phone"
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+            />
+          </div>
+          <div>
+            <label for="business_name" class="block text-sm font-medium mb-1">Business name <span class="text-red-500">*</span></label>
+            <input type="text" id="business_name" name="business_name" required
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+            />
+          </div>
+          <div>
+            <label for="business_description" class="block text-sm font-medium mb-1">What does your business do? <span class="text-red-500">*</span></label>
+            <textarea id="business_description" name="business_description" rows="3" required minlength="10"
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] resize-none"
+              placeholder="e.g. We're a barbershop in downtown Greenville specializing in classic cuts and hot towel shaves."
+            ></textarea>
+          </div>
+          <div>
+            <label for="service_area" class="block text-sm font-medium mb-1">Where do you serve customers? <span class="text-[#1A1814]/40 font-normal">(optional)</span></label>
+            <input type="text" id="service_area" name="service_area" placeholder="e.g. Greenville, Spartanburg, and Anderson SC"
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38]"
+            />
+          </div>
+        </div>
+        <div class="flex justify-end mt-6">
+          <button type="button" id="next-1" class="px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+            Next: Your project &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: What You Need -->
+      <div id="step-2" class="hidden">
+        <div class="space-y-6">
+          <fieldset>
+            <legend class="text-sm font-medium mb-2">What kind of site do you need? <span class="text-red-500">*</span></legend>
+            <div class="space-y-2">
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="starter" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Simple presence</span>
+                  <p class="text-xs text-[#1A1814]/50">1-page site with contact info, hours, and a form</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="business" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Business website</span>
+                  <p class="text-xs text-[#1A1814]/50">Multiple pages, services, blog, and online payments</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="store" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Online store</span>
+                  <p class="text-xs text-[#1A1814]/50">Product catalog, shopping cart, and checkout</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="spark" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Spark <span class="text-[#B85C38] text-xs font-normal">new</span></span>
+                  <p class="text-xs text-[#1A1814]/50">You're a creative with an idea — a side project, a tool, a product. Let's prototype it fast and see if it flies.</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="app" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Custom app</span>
+                  <p class="text-xs text-[#1A1814]/50">A tool or platform for your business — booking, inventory, team management, billing</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 transition-colors">
+                <input type="radio" name="site_type" value="unsure" class="mt-0.5 accent-[#B85C38]" />
+                <div>
+                  <span class="font-medium text-sm">Not sure yet</span>
+                  <p class="text-xs text-[#1A1814]/50">We'll help you figure it out</p>
+                </div>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Spark-specific questions (shown when "Spark" selected) -->
+          <div id="spark-questions" class="hidden space-y-4 p-4 bg-amber-50/50 rounded-xl border border-[#B85C38]/15">
+            <p class="text-xs font-medium text-[#B85C38]">Tell us about your idea:</p>
+            <div>
+              <label class="block text-sm font-medium mb-1">What's the idea in one sentence?</label>
+              <input type="text" name="spark_idea" placeholder="e.g. An app that matches local musicians with venues..." class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Who is it for?</label>
+              <input type="text" name="spark_audience" placeholder="e.g. freelance photographers, local coffee shops, podcast listeners..." class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Have you validated this idea?</label>
+              <div class="flex flex-wrap gap-2">
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="spark_validated" value="yes_paying" class="accent-[#B85C38]" /> Yes — people are paying for it</label>
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="spark_validated" value="yes_interest" class="accent-[#B85C38]" /> Yes — people are interested</label>
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="spark_validated" value="no" class="accent-[#B85C38]" /> No — just an idea so far</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- App-specific questions (shown when "Custom app" selected) -->
+          <div id="app-questions" class="hidden space-y-4 p-4 bg-amber-50/50 rounded-xl border border-[#B85C38]/15">
+            <p class="text-xs font-medium text-[#B85C38]">A few extra questions to help us understand your app idea:</p>
+            <div>
+              <label class="block text-sm font-medium mb-1">What tools do you use today?</label>
+              <input type="text" name="current_tools" placeholder="e.g. spreadsheets, WhatsApp, paper, another app..." class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">How many people would use it?</label>
+              <select name="user_count" class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] text-sm">
+                <option value="">Select...</option>
+                <option value="just_me">Just me</option>
+                <option value="2_10">2–10 people</option>
+                <option value="10_50">10–50 people</option>
+                <option value="50_plus">50+</option>
+                <option value="public">Open to the public</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Do you need to accept payments?</label>
+              <div class="flex flex-wrap gap-2">
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="app_payments" value="stripe" class="accent-[#B85C38]" /> Credit/debit cards</label>
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="app_payments" value="no" class="accent-[#B85C38]" /> No payments</label>
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm"><input type="radio" name="app_payments" value="unsure" class="accent-[#B85C38]" /> Not sure</label>
+              </div>
+            </div>
+          </div>
+          </fieldset>
+
+          <!-- Website-only questions (hidden for app + spark) -->
+          <div id="website-questions">
+            <fieldset>
+              <legend class="text-sm font-medium mb-2">What pages do you need? <span class="text-[#1A1814]/40 font-normal">(select all that apply)</span></legend>
+              <div class="grid grid-cols-2 gap-2">
+                {['Home', 'About', 'Services', 'Gallery', 'Testimonials', 'Contact', 'Blog', 'FAQ', 'Booking', 'Store'].map(page => (
+                  <label class="flex items-center gap-2 p-2 border border-[#1A1814]/10 rounded-lg cursor-pointer hover:border-[#B85C38]/30 text-sm transition-colors">
+                    <input type="checkbox" name="pages_needed" value={page} class="accent-[#B85C38]" />
+                    {page}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-6">
+              <legend class="text-sm font-medium mb-2">Do you need to accept payments online?</legend>
+              <div class="flex flex-wrap gap-2">
+                {[
+                  { value: 'no', label: 'No' },
+                  { value: 'one_time', label: 'One-time payments' },
+                  { value: 'recurring', label: 'Subscriptions' },
+                  { value: 'unsure', label: 'Not sure' },
+                ].map(opt => (
+                  <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm transition-colors">
+                    <input type="radio" name="needs_payments" value={opt.value} class="accent-[#B85C38]" />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-6">
+              <legend class="text-sm font-medium mb-2">Do you have an existing website?</legend>
+              <div class="flex gap-4">
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="radio" name="has_existing_site" value="yes" class="accent-[#B85C38]" /> Yes
+                </label>
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="radio" name="has_existing_site" value="no" class="accent-[#B85C38]" checked /> No
+                </label>
+              </div>
+              <input type="url" id="existing_site_url" name="existing_site_url" placeholder="https://your-current-site.com"
+                class="w-full px-4 py-3 mt-2 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] hidden"
+              />
+            </fieldset>
+          </div>
+
+          <div>
+            <label for="project_description" class="block text-sm font-medium mb-1">Describe what you want built <span class="text-red-500">*</span></label>
+            <textarea id="project_description" name="project_description" rows="4" required minlength="10"
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] resize-none"
+              placeholder="Tell us what you're looking for — the more detail, the better our recommendation."
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex justify-between mt-6">
+          <button type="button" id="back-2" class="px-6 py-3 text-[#1A1814]/60 font-medium rounded-lg hover:bg-[#1A1814]/5 transition-colors">
+            &larr; Back
+          </button>
+          <button type="button" id="next-2" class="px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors">
+            Next: Timeline &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Timeline & Budget -->
+      <div id="step-3" class="hidden">
+        <div class="space-y-6">
+          <fieldset>
+            <legend class="text-sm font-medium mb-2">What's your budget range? <span class="text-red-500">*</span></legend>
+            <div class="space-y-2">
+              {[
+                { value: 'under_750', label: 'Under $750' },
+                { value: '750_1500', label: '$750 – $1,500' },
+                { value: '1500_3500', label: '$1,500 – $3,500' },
+                { value: '3500_plus', label: '$3,500+' },
+                { value: 'unsure', label: 'Not sure yet' },
+              ].map(opt => (
+                <label class="flex items-center gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm transition-colors">
+                  <input type="radio" name="budget_range" value={opt.value} class="accent-[#B85C38]" />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-sm font-medium mb-2">When do you need it? <span class="text-red-500">*</span></legend>
+            <div class="space-y-2">
+              {[
+                { value: 'asap', label: 'As soon as possible' },
+                { value: '1_2_weeks', label: '1–2 weeks' },
+                { value: '1_month', label: 'About a month' },
+                { value: '2_3_months', label: '2–3 months' },
+                { value: 'no_rush', label: 'No rush' },
+              ].map(opt => (
+                <label class="flex items-center gap-3 p-3 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm transition-colors">
+                  <input type="radio" name="timeline" value={opt.value} class="accent-[#B85C38]" />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-sm font-medium mb-2">How did you find us?</legend>
+            <div class="flex flex-wrap gap-2">
+              {[
+                { value: 'google', label: 'Google' },
+                { value: 'social', label: 'Social media' },
+                { value: 'referral', label: 'Referral' },
+                { value: 'ad', label: 'Ad' },
+                { value: 'other', label: 'Other' },
+              ].map(opt => (
+                <label class="flex items-center gap-2 px-3 py-2 border border-[#1A1814]/15 rounded-lg cursor-pointer hover:border-[#B85C38]/40 text-sm transition-colors">
+                  <input type="radio" name="how_found_us" value={opt.value} class="accent-[#B85C38]" />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <div>
+            <label for="anything_else" class="block text-sm font-medium mb-1">Anything else we should know? <span class="text-[#1A1814]/40 font-normal">(optional)</span></label>
+            <textarea id="anything_else" name="anything_else" rows="3"
+              class="w-full px-4 py-3 border border-[#1A1814]/20 rounded-lg bg-white focus:outline-none focus:border-[#B85C38] focus:ring-1 focus:ring-[#B85C38] resize-none"
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex justify-between mt-6">
+          <button type="button" id="back-3" class="px-6 py-3 text-[#1A1814]/60 font-medium rounded-lg hover:bg-[#1A1814]/5 transition-colors">
+            &larr; Back
+          </button>
+          <button type="submit" id="submit-btn"
+            class="px-6 py-3 bg-[#B85C38] text-white font-medium rounded-lg hover:bg-[#a04e2f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Submit project details
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Success message -->
+    <div id="success-msg" class="hidden py-8 text-center" role="alert">
+      <div class="bg-[#4A6741]/10 border border-[#4A6741]/30 rounded-xl p-8">
+        <p class="text-xl font-semibold text-[#4A6741] mb-2">Project details received!</p>
+        <p class="text-[#1A1814]/60 mb-4">We'll review your project and get back to you within one business day with a recommendation and quote.</p>
+        <p class="text-sm text-[#1A1814]/40">Check your email for a confirmation.</p>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div id="error-msg" class="hidden mt-4" role="alert">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-sm text-red-700" id="error-text">Something went wrong. Please try again.</p>
+      </div>
+    </div>
+  </section>
+</PublicLayout>
+
+<script>
+  // Set timing field on page load
+  document.getElementById('_loaded_at')!.setAttribute('value', String(Date.now()))
+
+  // Capture UTM parameters from URL
+  const urlParams = new URLSearchParams(window.location.search)
+  const utmSource = urlParams.get('utm_source') || ''
+  const utmMedium = urlParams.get('utm_medium') || ''
+  const utmCampaign = urlParams.get('utm_campaign') || ''
+
+  const form = document.getElementById('intake-form') as HTMLFormElement
+  const steps = [
+    document.getElementById('step-1')!,
+    document.getElementById('step-2')!,
+    document.getElementById('step-3')!,
+  ]
+  const progressItems = document.querySelectorAll<HTMLElement>('#progress-bar [data-step]')
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement
+  const successMsg = document.getElementById('success-msg')!
+  const errorMsg = document.getElementById('error-msg')!
+  const errorText = document.getElementById('error-text')!
+
+  let currentStep = 0
+
+  function showStep(idx: number) {
+    steps.forEach((s, i) => s.classList.toggle('hidden', i !== idx))
+    progressItems.forEach((item, i) => {
+      const dot = item.querySelector('span')!
+      if (i <= idx) {
+        item.classList.remove('text-[#1A1814]/30')
+        item.classList.add('text-[#B85C38]')
+        dot.classList.remove('bg-[#1A1814]/10', 'text-[#1A1814]/40')
+        dot.classList.add('bg-[#B85C38]', 'text-white')
+      } else {
+        item.classList.add('text-[#1A1814]/30')
+        item.classList.remove('text-[#B85C38]')
+        dot.classList.add('bg-[#1A1814]/10', 'text-[#1A1814]/40')
+        dot.classList.remove('bg-[#B85C38]', 'text-white')
+      }
+    })
+    currentStep = idx
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Validate required fields in current step before advancing
+  function validateStep(idx: number): boolean {
+    const step = steps[idx]
+    const required = step.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]')
+    for (const el of required) {
+      if (!el.value.trim()) {
+        el.focus()
+        el.reportValidity()
+        return false
+      }
+    }
+    // Step 2: site_type is required
+    if (idx === 1) {
+      const siteType = form.querySelector<HTMLInputElement>('input[name="site_type"]:checked')
+      if (!siteType) {
+        const legend = step.querySelector('fieldset legend')
+        if (legend) legend.scrollIntoView({ behavior: 'smooth' })
+        return false
+      }
+    }
+    // Step 3: budget_range and timeline required
+    if (idx === 2) {
+      const budget = form.querySelector<HTMLInputElement>('input[name="budget_range"]:checked')
+      const timeline = form.querySelector<HTMLInputElement>('input[name="timeline"]:checked')
+      if (!budget || !timeline) return false
+    }
+    return true
+  }
+
+  // Navigation buttons
+  document.getElementById('next-1')!.addEventListener('click', () => {
+    if (validateStep(0)) showStep(1)
+  })
+  document.getElementById('next-2')!.addEventListener('click', () => {
+    if (validateStep(1)) showStep(2)
+  })
+  document.getElementById('back-2')!.addEventListener('click', () => showStep(0))
+  document.getElementById('back-3')!.addEventListener('click', () => showStep(1))
+
+  // Show/hide conditional questions based on site type
+  const siteTypeRadios = form.querySelectorAll<HTMLInputElement>('input[name="site_type"]')
+  const appQuestions = document.getElementById('app-questions')!
+  const sparkQuestions = document.getElementById('spark-questions')!
+  const websiteQuestions = document.getElementById('website-questions')!
+  siteTypeRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      const selected = form.querySelector<HTMLInputElement>('input[name="site_type"]:checked')?.value
+      appQuestions.classList.toggle('hidden', selected !== 'app')
+      sparkQuestions.classList.toggle('hidden', selected !== 'spark')
+      // Hide website-specific questions for app and spark
+      websiteQuestions.classList.toggle('hidden', selected === 'app' || selected === 'spark')
+    })
+  })
+
+  // Show/hide existing site URL field
+  const existingSiteRadios = form.querySelectorAll<HTMLInputElement>('input[name="has_existing_site"]')
+  const existingSiteUrl = document.getElementById('existing_site_url')!
+  existingSiteRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      existingSiteUrl.classList.toggle('hidden', radio.value !== 'yes')
+    })
+  })
+
+  // Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    if (!validateStep(2)) return
+
+    errorMsg.classList.add('hidden')
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Submitting...'
+
+    // Gather all checkboxes for pages_needed
+    const pagesChecked = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="pages_needed"]:checked'))
+      .map(el => el.value)
+
+    const getRadio = (name: string) =>
+      (form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? '')
+    const getInput = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement)?.value?.trim() ?? ''
+
+    const data = {
+      name: getInput('name'),
+      email: getInput('email'),
+      phone: getInput('phone'),
+      business_name: getInput('business_name'),
+      business_description: getInput('business_description'),
+      service_area: getInput('service_area'),
+      site_type: getRadio('site_type'),
+      pages_needed: pagesChecked,
+      needs_payments: getRadio('needs_payments') || 'unsure',
+      has_existing_site: getRadio('has_existing_site') || 'no',
+      existing_site_url: getInput('existing_site_url'),
+      project_description: getInput('project_description'),
+      budget_range: getRadio('budget_range'),
+      timeline: getRadio('timeline'),
+      how_found_us: getRadio('how_found_us') || 'other',
+      anything_else: getInput('anything_else'),
+      website: getInput('website'),
+      _loaded_at: getInput('_loaded_at'),
+      // App-specific fields (only populated when site_type === 'app')
+      current_tools: getInput('current_tools'),
+      user_count: (form.elements.namedItem('user_count') as HTMLSelectElement)?.value ?? '',
+      app_payments: getRadio('app_payments'),
+      // Spark-specific fields (only populated when site_type === 'spark')
+      spark_idea: getInput('spark_idea'),
+      spark_audience: getInput('spark_audience'),
+      spark_validated: getRadio('spark_validated'),
+      // UTM tracking (captured from URL on page load)
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+    }
+
+    try {
+      const res = await fetch('/api/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const json = await res.json()
+
+      if (!res.ok) {
+        throw new Error(json.error || 'Something went wrong')
+      }
+
+      form.classList.add('hidden')
+      document.getElementById('progress-bar')!.classList.add('hidden')
+      successMsg.classList.remove('hidden')
+
+      // Fire conversion pixels
+      if (typeof (window as any).fbq === 'function') (window as any).fbq('track', 'Lead')
+      if (typeof (window as any).gtag === 'function') (window as any).gtag('event', 'conversion', { send_to: 'get_started_form' })
+    } catch (err) {
+      errorText.textContent = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      errorMsg.classList.remove('hidden')
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Submit project details'
+    }
+  })
+
+  // Abandoned form recovery — save partial lead if step 1 filled but form not submitted
+  let formSubmitted = false
+  let partialSaved = false
+
+  form.addEventListener('submit', () => { formSubmitted = true })
+
+  function savePartialLead() {
+    if (formSubmitted || partialSaved) return
+    const email = (form.elements.namedItem('email') as HTMLInputElement)?.value?.trim()
+    if (!email || !email.includes('@')) return
+
+    partialSaved = true
+    const name = (form.elements.namedItem('name') as HTMLInputElement)?.value?.trim() || ''
+    const businessName = (form.elements.namedItem('business_name') as HTMLInputElement)?.value?.trim() || ''
+
+    navigator.sendBeacon('/api/partial-lead', JSON.stringify({ email, name, business_name: businessName }))
+  }
+
+  // Save on page unload
+  window.addEventListener('beforeunload', savePartialLead)
+
+  // Save after 60s of inactivity (user filled step 1 but stopped)
+  let inactivityTimer: ReturnType<typeof setTimeout>
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer)
+    inactivityTimer = setTimeout(savePartialLead, 60000)
+  }
+  document.addEventListener('mousemove', resetInactivityTimer)
+  document.addEventListener('keydown', resetInactivityTimer)
+  resetInactivityTimer()
+</script>

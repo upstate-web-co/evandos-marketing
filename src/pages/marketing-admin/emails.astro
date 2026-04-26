@@ -1,0 +1,203 @@
+---
+import MarketingAdminLayout from '../../layouts/MarketingAdminLayout.astro'
+import { getEnv } from '../../lib/env'
+
+const env = getEnv(Astro.locals)
+
+interface EmailTemplate {
+  id: string
+  slug: string
+  name: string
+  subject: string
+  body: string
+  template_type: string
+  step_number: number | null
+  delay_days: number | null
+  is_active: number
+  updated_at: string
+}
+
+let templates: EmailTemplate[] = []
+if (env.DB) {
+  const { results } = await env.DB
+    .prepare('SELECT * FROM email_templates ORDER BY template_type ASC, step_number ASC')
+    .all<EmailTemplate>()
+  templates = results
+}
+
+const nurtureTemplates = templates.filter(t => t.template_type === 'nurture')
+const otherTemplates = templates.filter(t => t.template_type !== 'nurture')
+---
+<MarketingAdminLayout title="Email Templates">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight">Email Templates</h1>
+    <p class="text-sm text-[#F7F4EF]/50 mt-1">
+      Edit nurture sequence and notification emails. Changes take effect immediately.
+    </p>
+  </div>
+
+  {templates.length === 0 ? (
+    <div class="bg-[#1A1814] border border-[#F7F4EF]/10 rounded-lg p-8 text-center">
+      <p class="text-[#F7F4EF]/50">No email templates found. Run migration 0006 to seed defaults.</p>
+    </div>
+  ) : (
+    <div class="space-y-8">
+      <!-- Nurture Sequence -->
+      <div>
+        <h2 class="text-lg font-semibold mb-4">Nurture Sequence ({nurtureTemplates.length} emails)</h2>
+        <div class="space-y-4">
+          {nurtureTemplates.map(t => (
+            <div class="bg-[#1A1814] border border-[#F7F4EF]/10 rounded-lg p-5" data-slug={t.slug}>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#B85C38]/20 text-[#B85C38] text-xs font-bold">
+                    {t.step_number}
+                  </span>
+                  <div>
+                    <h3 class="text-sm font-semibold">{t.name}</h3>
+                    <p class="text-xs text-[#F7F4EF]/40">Day {t.delay_days} &middot; Updated {t.updated_at?.split('T')[0]}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class:list={[
+                    'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                    t.is_active ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300',
+                  ]}>
+                    {t.is_active ? 'Active' : 'Disabled'}
+                  </span>
+                  <button
+                    class="edit-btn px-3 py-1 bg-[#B85C38] text-white text-xs rounded hover:bg-[#a04e2f] transition-colors"
+                    data-slug={t.slug}
+                  >Edit</button>
+                </div>
+              </div>
+
+              <!-- Edit form (hidden by default) -->
+              <div class="edit-form hidden mt-4 space-y-3 border-t border-[#F7F4EF]/10 pt-4">
+                <div>
+                  <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Subject line</label>
+                  <input
+                    type="text"
+                    class="subject-input w-full bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg p-2 text-sm text-[#F7F4EF] focus:border-[#B85C38] focus:outline-none"
+                    value={t.subject}
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Email body</label>
+                  <textarea
+                    class="body-input w-full bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg p-3 text-sm text-[#F7F4EF] font-mono focus:border-[#B85C38] focus:outline-none"
+                    rows="10"
+                  >{t.body}</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Send after (days)</label>
+                    <input
+                      type="number"
+                      class="delay-input w-full bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg p-2 text-sm text-[#F7F4EF] focus:border-[#B85C38] focus:outline-none"
+                      value={t.delay_days ?? ''}
+                      min="0"
+                      max="90"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-[#F7F4EF]/60 mb-1">Status</label>
+                    <select class="active-input w-full bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 rounded-lg p-2 text-sm text-[#F7F4EF] focus:border-[#B85C38] focus:outline-none">
+                      <option value="1" selected={t.is_active === 1}>Active</option>
+                      <option value="0" selected={t.is_active === 0}>Disabled</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="save-btn px-4 py-2 bg-[#B85C38] text-white text-sm font-medium rounded hover:bg-[#a04e2f] transition-colors disabled:opacity-50">
+                    Save Changes
+                  </button>
+                  <button class="cancel-btn px-4 py-2 bg-[#F7F4EF]/5 border border-[#F7F4EF]/10 text-[#F7F4EF]/60 text-sm rounded hover:bg-[#F7F4EF]/10 transition-colors">
+                    Cancel
+                  </button>
+                  <span class="save-status text-xs hidden"></span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {otherTemplates.length > 0 && (
+        <div>
+          <h2 class="text-lg font-semibold mb-4">Other Templates ({otherTemplates.length})</h2>
+          <p class="text-sm text-[#F7F4EF]/40">Transactional and notification templates. Coming soon.</p>
+        </div>
+      )}
+    </div>
+  )}
+</MarketingAdminLayout>
+
+<script>
+  // Toggle edit forms
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('[data-slug]') as HTMLElement
+      card.querySelector('.edit-form')?.classList.toggle('hidden')
+    })
+  })
+
+  // Cancel buttons
+  document.querySelectorAll('.cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('[data-slug]') as HTMLElement
+      card.querySelector('.edit-form')?.classList.add('hidden')
+    })
+  })
+
+  // Save buttons
+  document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const card = btn.closest('[data-slug]') as HTMLElement
+      const slug = card.dataset.slug
+      const saveBtn = btn as HTMLButtonElement
+      const status = card.querySelector('.save-status') as HTMLElement
+
+      const subject = (card.querySelector('.subject-input') as HTMLInputElement).value.trim()
+      const body = (card.querySelector('.body-input') as HTMLTextAreaElement).value
+      const delayStr = (card.querySelector('.delay-input') as HTMLInputElement).value
+      const isActive = parseInt((card.querySelector('.active-input') as HTMLSelectElement).value)
+
+      saveBtn.disabled = true
+      saveBtn.textContent = 'Saving...'
+
+      try {
+        const payload: Record<string, unknown> = { slug }
+        if (subject) payload.subject = subject
+        if (body) payload.body = body
+        if (delayStr) payload.delay_days = parseInt(delayStr)
+        payload.is_active = isActive
+
+        const res = await fetch('/api/marketing-admin/email-templates', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+
+        if (res.ok) {
+          status.textContent = 'Saved!'
+          status.className = 'save-status text-xs text-green-400'
+          status.classList.remove('hidden')
+          setTimeout(() => window.location.reload(), 1000)
+        } else {
+          const data = await res.json()
+          status.textContent = data.error || 'Failed to save'
+          status.className = 'save-status text-xs text-red-400'
+          status.classList.remove('hidden')
+        }
+      } catch {
+        status.textContent = 'Network error'
+        status.className = 'save-status text-xs text-red-400'
+        status.classList.remove('hidden')
+      } finally {
+        saveBtn.disabled = false
+        saveBtn.textContent = 'Save Changes'
+      }
+    })
+  })
+</script>

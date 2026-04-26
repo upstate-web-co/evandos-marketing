@@ -1,0 +1,178 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+
+const title = 'UWC Skills — Claude Agent Skills for production-ready AI apps'
+const description =
+  "Three battle-tested Claude Agent Skills extracted from Upstate Web Co.'s production pipeline — cost guards, weighted scoring, and three-gate shipping. Ships as an npm bundle plus a stdio MCP server. Public, MIT, free."
+
+const skills = [
+  {
+    slug: 'ai-cost-guard',
+    title: 'AI Cost Guard',
+    pitch:
+      'A two-part guard — per-tenant daily budget check plus an immutable call log — that prevents a single runaway loop from draining a shared API key. Django + Astro/D1 reference implementations with tests included.',
+    use: 'Drop in before any LLM call. Stops cost incidents before they happen, not after the bill arrives.',
+    meta: 'v1.0 · ~5,000 words · mandatory for any LLM call in production',
+  },
+  {
+    slug: 'weighted-scoring-engine',
+    title: 'Weighted Scoring Engine',
+    pitch:
+      'Configurable SearchCriteria + per-factor scorer factory + rank assignment, with a mandatory .quantize() clause that prevents the silent Decimal-drift bug where three equal weights × three perfect scores produce 99.99…8 instead of 100.00.',
+    use: 'Use anywhere you combine N factor scores into one — lead scoring, content moderation, search relevance, applicant matching, prospect ranking.',
+    meta: 'v1.0 · ~6,000 words · 65 tests extracted alongside the skill',
+  },
+  {
+    slug: 'three-gate-pipeline',
+    title: 'Three-Gate Pipeline',
+    pitch:
+      'Prototype → MVP → Launch client sign-off gates for app-tier engagements. Each gate has a deliverable URL, an explicit sign-off decision, and backlog pricing for paused work. Turns vibe-driven engagements into billable milestones.',
+    use: 'Process skill (no code). Useful for any agency, freelancer, or consultancy shipping client work on a timeline. Documents a contract pattern, not a framework.',
+    meta: 'v1.0 · ~4,500 words · process skill',
+  },
+]
+---
+
+<PublicLayout title={title} description={description}>
+  <div class="max-w-3xl mx-auto py-16 px-6 md:px-0">
+    <header class="mb-16">
+      <p class="text-sm uppercase tracking-wider text-rust mb-4">UWC Skills — v0.1.0 — published on npm</p>
+      <h1 class="text-4xl md:text-5xl font-serif tracking-tight mb-6">
+        Agent Skills extracted<br />from real client builds.
+      </h1>
+      <p class="text-lg text-charcoal/70 leading-relaxed">
+        Every skill in <code class="text-sm bg-charcoal/5 px-1.5 py-0.5 rounded">@upstate-web/uwc-skills</code> has shipped to production at least once. Each encodes a specific engineering pattern — what problem it solves, the exact code to drop in, and the regressions it prevents. Drop-in ready for Claude Code and any MCP-compatible client.
+      </p>
+    </header>
+
+    <!-- Who this is for -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">What this is, and who it's for</h2>
+      <p class="text-charcoal/70 leading-relaxed mb-4">
+        Two npm packages, one for content and one for serving it:
+      </p>
+      <ul class="space-y-3 text-charcoal/70 leading-relaxed mb-6">
+        <li>
+          <strong class="text-charcoal"><code class="text-sm bg-charcoal/5 px-1.5 py-0.5 rounded">@upstate-web/uwc-skills</code></strong> — three hand-curated <a class="text-rust hover:underline" href="https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills">Anthropic Agent Skills</a>. No runtime code. Just markdown documents that any agent — Claude Code, Cursor, Continue.dev, your own — can load and follow.
+        </li>
+        <li>
+          <strong class="text-charcoal"><code class="text-sm bg-charcoal/5 px-1.5 py-0.5 rounded">@upstate-web/uwc-pipeline-mcp</code></strong> — a stdio Model Context Protocol server that exposes any directory of <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">SKILL.md</code> files as two callable tools: <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">list_skills</code> and <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">get_skill</code>. Auto-discovers the bundle above when both are installed in the same project.
+        </li>
+      </ul>
+      <p class="text-charcoal/70 leading-relaxed mb-4">
+        <strong class="text-charcoal">Useful to you if you are:</strong>
+      </p>
+      <ul class="space-y-2 text-charcoal/70 leading-relaxed list-disc pl-6 mb-6">
+        <li>An engineer shipping any LLM-using product (the cost-guard pattern is the kind of thing that's universally recommended and rarely implemented well).</li>
+        <li>Building any system that scores or ranks — leads, candidates, content, search results, anything where N factors collapse into one number.</li>
+        <li>An agency, freelancer, or consultancy looking for a discipline that prevents scope creep without slowing the build down.</li>
+        <li>A team adopting Anthropic's Agent Skills spec and wanting a working example you can read, fork, or extend.</li>
+        <li>A team with your own internal skill library that wants to expose it via MCP without building the server yourself — point <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">UWC_SKILLS_DIR</code> at your directory.</li>
+      </ul>
+      <p class="text-charcoal/70 leading-relaxed">
+        Public, MIT-licensed, free. No account or API key needed.
+      </p>
+    </section>
+
+    <!-- 60-second install block -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">60-second install</h2>
+      <p class="text-charcoal/70 mb-6">
+        Two packages: a bundle of skills and an MCP server that surfaces them as tools Claude Code can call.
+      </p>
+
+      <div class="rounded-lg bg-charcoal text-cream p-6 font-mono text-sm leading-relaxed overflow-x-auto">
+        <span class="text-cream/40"># 1. Install the MCP server</span><br />
+        npm install -g @upstate-web/uwc-pipeline-mcp<br />
+        <br />
+        <span class="text-cream/40"># 2. Install the skills bundle alongside it</span><br />
+        npm install @upstate-web/uwc-skills<br />
+        <br />
+        <span class="text-cream/40"># 3. Register with Claude Code</span><br />
+        claude mcp add uwc-pipeline-mcp -- npx @upstate-web/uwc-pipeline-mcp
+      </div>
+
+      <p class="text-sm text-charcoal/60 mt-4">
+        In your next Claude Code session, the tools <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">list_skills</code> and <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">get_skill</code> appear. Claude calls them when a task matches a skill's trigger phrase. Use without the bundle by setting <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">UWC_SKILLS_DIR</code> to any directory of <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">SKILL.md</code> files.
+      </p>
+    </section>
+
+    <!-- Skills in this release -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">What's in v0.1.0</h2>
+      <p class="text-charcoal/70 mb-8">
+        Three skills. All originated in the Hale Industrial build — an AI-powered property intelligence workbench — and were extracted only after passing the bar (portable, leakage-free, useful outside UWC).
+      </p>
+
+      <div class="space-y-6">
+        {skills.map((skill) => (
+          <article class="rounded-lg border border-charcoal/10 p-6 hover:border-rust/40 transition-colors">
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <h3 class="text-xl font-serif">{skill.title}</h3>
+              <code class="text-xs text-charcoal/50 shrink-0">{skill.slug}</code>
+            </div>
+            <p class="text-charcoal/70 leading-relaxed mb-3">{skill.pitch}</p>
+            <p class="text-sm text-charcoal/60 leading-relaxed mb-3"><strong class="text-charcoal/80">Use it for:</strong> {skill.use}</p>
+            <p class="text-xs text-charcoal/50">{skill.meta}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- How Claude uses them -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">How Claude uses them</h2>
+      <ol class="space-y-4 text-charcoal/70 leading-relaxed">
+        <li>
+          <strong class="text-charcoal">1. Discovery.</strong> Claude calls <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">list_skills</code> and sees every skill's slug, description, and trigger phrases.
+        </li>
+        <li>
+          <strong class="text-charcoal">2. Match.</strong> When your task matches a skill's trigger — say, you're adding an LLM call and <em>ai-cost-guard</em> matches — Claude calls <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">get_skill('ai-cost-guard')</code>.
+        </li>
+        <li>
+          <strong class="text-charcoal">3. Apply.</strong> Claude reads the full skill content and applies its guidance — writes the code in the prescribed shape, adds the mandatory tests, flags anti-patterns.
+        </li>
+      </ol>
+    </section>
+
+    <!-- Design discipline -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">Design discipline</h2>
+      <ul class="space-y-3 text-charcoal/70 leading-relaxed">
+        <li>
+          <strong class="text-charcoal">Portable.</strong> The MCP server reads any directory of Agent Skills-compliant <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">SKILL.md</code> files via <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">UWC_SKILLS_DIR</code>. The UWC bundle is one valid input, not a requirement.
+        </li>
+        <li>
+          <strong class="text-charcoal">Read-only.</strong> No write tools, no network calls, no mutation. Claude's ability to modify your code still flows through Claude Code's built-in tools; these skills just inform what it writes.
+        </li>
+        <li>
+          <strong class="text-charcoal">Leakage-aware.</strong> Skill content references private UWC projects as labels, not live links. No API keys, no schemas, no internal endpoints in the published bundle.
+        </li>
+        <li>
+          <strong class="text-charcoal">Versioned.</strong> Each skill carries a <code class="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded">version</code> in its frontmatter that bumps independently of the bundle version. Bumps traced to retros, not whims.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-serif mb-4">What's next</h2>
+      <p class="text-charcoal/70 leading-relaxed mb-4">
+        This bundle grows by bar, not by count. A skill enters only if it passes three tests: <strong class="text-charcoal">portability</strong> (works outside UWC's stack), <strong class="text-charcoal">leakage-free</strong> (no private repo links, admin schema, or shared secrets), and <strong class="text-charcoal">usefulness</strong> (value to a non-UWC developer without our other tooling). Skills that don't pass are dropped, not deferred.
+      </p>
+      <p class="text-charcoal/70 leading-relaxed">
+        There's no promised count for v0.2.0. If a fourth skill passes the bar, it ships. If not, v0.1.x patch releases carry typo fixes and clarifications until the next pattern graduates.
+      </p>
+    </section>
+
+    <!-- Footer contact -->
+    <section class="border-t border-charcoal/10 pt-8">
+      <p class="text-charcoal/60 text-sm leading-relaxed">
+        Source on GitHub: <a class="text-rust hover:underline" href="https://github.com/upstate-web-co/uwc-skills-npm">uwc-skills-npm</a> · <a class="text-rust hover:underline" href="https://github.com/upstate-web-co/uwc-pipeline-mcp">uwc-pipeline-mcp</a>. Both MIT-licensed.
+      </p>
+      <p class="text-charcoal/60 text-sm leading-relaxed mt-4">
+        Questions, feedback, or an incident where one of these skills would have helped? Email <a href="mailto:hello@upstate-web.com" class="text-rust hover:underline">hello@upstate-web.com</a>. Patterns graduate into the bundle after they've shipped to production at least once — real-world usage is the input we most want.
+      </p>
+    </section>
+  </div>
+</PublicLayout>

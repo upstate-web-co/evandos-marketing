@@ -1,0 +1,324 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro'
+import NewsletterSignup from '../components/NewsletterSignup.astro'
+import LeadMagnetCTA from '../components/LeadMagnetCTA.astro'
+import TestimonialCard from '../components/TestimonialCard.astro'
+import InlineChat from '../components/chat/InlineChat'
+
+const tiers = [
+  {
+    name: 'Starter Presence',
+    price: '$750 – $1,200',
+    timeline: '1–2 weeks',
+    description: 'A single-page site with your hours, location, services, and a contact form. Perfect for service businesses that just need to show up on Google.',
+    features: [
+      'Custom design (not a template)',
+      'Mobile-responsive',
+      'Google Business Profile setup',
+      'Contact form that emails you directly',
+      'Basic SEO so Google can find you',
+    ],
+    bestFor: 'Contractors, solo professionals, food trucks, home services',
+  },
+  {
+    name: 'Business Website',
+    price: '$1,800 – $3,500',
+    timeline: '2–3 weeks',
+    description: 'A multi-page site with CMS, blog, and integrations like Stripe for payments or a booking system.',
+    features: [
+      'Everything in Starter, plus:',
+      '5–7 pages (services, about, portfolio, blog)',
+      'Content management system',
+      'Stripe payment integration',
+      'Blog for SEO content',
+      'Analytics setup (GA4)',
+    ],
+    bestFor: 'Restaurants, salons, dental offices, retail shops, professional services',
+    popular: true,
+  },
+  {
+    name: 'Online Store',
+    price: '$3,500 – $7,500',
+    timeline: '3–5 weeks',
+    description: 'A full e-commerce setup with product catalog, shopping cart, and checkout — all connected to your own Stripe account.',
+    features: [
+      'Everything in Business, plus:',
+      'Product catalog (up to 50 products)',
+      'Shopping cart and checkout',
+      'Inventory management',
+      'Order notifications',
+      'Shipping rate integration',
+    ],
+    bestFor: 'Boutiques, specialty food, artisan goods, online retail',
+  },
+]
+
+const retainers = [
+  {
+    name: 'Maintenance',
+    price: '$150/mo',
+    features: ['Hosting on Cloudflare', 'Security updates', 'Minor text/image edits', 'Daily backups'],
+  },
+  {
+    name: 'Growth',
+    price: '$400/mo',
+    features: ['Everything in Maintenance', 'Content updates', 'Google Business Profile posts', 'Monthly SEO report'],
+  },
+  {
+    name: 'Full Partner',
+    price: '$950/mo',
+    features: ['Everything in Growth', 'Ad management', 'A/B testing', 'Priority support', 'Strategy calls'],
+  },
+]
+---
+<PublicLayout title="Services" description="Web design and development services for small businesses and solopreneurs. Starter sites from $750, business websites from $1,800, online stores from $3,500.">
+  <section class="py-8">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Services</h1>
+    <p class="text-lg text-[#1A1814]/60 max-w-2xl">
+      Every site is custom-built. No templates, no page builders, no monthly fees you don't need. Pick the tier that fits and we'll handle the rest.
+    </p>
+  </section>
+
+  <!-- Project tiers -->
+  <section class="py-8">
+    <div class="grid md:grid-cols-3 gap-6">
+      {tiers.map((tier) => (
+        <div class:list={[
+          'border rounded-xl p-6 flex flex-col',
+          tier.popular ? 'border-[#B85C38] ring-1 ring-[#B85C38]' : 'border-[#1A1814]/10',
+        ]}>
+          {tier.popular && (
+            <span class="text-xs font-semibold text-[#B85C38] uppercase tracking-wide mb-2">Most popular</span>
+          )}
+          <h2 class="text-xl font-bold">{tier.name}</h2>
+          <p class="text-2xl font-bold text-[#B85C38] mt-2">{tier.price}</p>
+          <p class="text-xs text-[#1A1814]/40 mt-1">{tier.timeline}</p>
+          <p class="text-sm text-[#1A1814]/60 mt-4">{tier.description}</p>
+          <ul class="mt-6 space-y-2 flex-1">
+            {tier.features.map((f) => (
+              <li class="text-sm text-[#1A1814]/70 flex gap-2">
+                <span class="text-[#4A6741] mt-0.5">✓</span>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <p class="text-xs text-[#1A1814]/40 mt-4">Best for: {tier.bestFor}</p>
+          <a href="/get-started" class:list={[
+            'mt-6 inline-flex items-center justify-center px-6 py-3 font-medium rounded-lg transition-colors text-center',
+            tier.popular
+              ? 'bg-[#B85C38] text-white hover:bg-[#a04e2f]'
+              : 'border border-[#1A1814]/20 hover:border-[#B85C38] hover:text-[#B85C38]',
+          ]}>
+            Get started
+          </a>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Quick comparison -->
+  <section class="py-16 border-t border-[#1A1814]/10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4">Compare at a glance</h2>
+    <p class="text-[#1A1814]/60 mb-8 max-w-2xl">Not sure which tier fits? Here's a quick comparison.</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-[#1A1814]/10">
+            <th class="text-left py-3 pr-4 font-semibold">Feature</th>
+            <th class="text-center py-3 px-4 font-semibold">Starter</th>
+            <th class="text-center py-3 px-4 font-semibold text-[#B85C38]">Business</th>
+            <th class="text-center py-3 px-4 font-semibold">Store</th>
+          </tr>
+        </thead>
+        <tbody class="text-[#1A1814]/70">
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Pages</td>
+            <td class="text-center py-3 px-4">1</td>
+            <td class="text-center py-3 px-4">5-7</td>
+            <td class="text-center py-3 px-4">5-7+</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Custom design</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Mobile responsive</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Contact form</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">SEO setup</td>
+            <td class="text-center py-3 px-4">Basic</td>
+            <td class="text-center py-3 px-4">Full</td>
+            <td class="text-center py-3 px-4">Full</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Google Business Profile</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">CMS (edit content yourself)</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Blog</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Stripe payments</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Analytics (GA4)</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Product catalog</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4">Up to 50</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Shopping cart + checkout</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr class="border-b border-[#1A1814]/5">
+            <td class="py-3 pr-4">Inventory management</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#1A1814]/30">&mdash;</td>
+            <td class="text-center py-3 px-4 text-[#4A6741]">&#10003;</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4 font-semibold">Price</td>
+            <td class="text-center py-3 px-4 font-semibold">$750+</td>
+            <td class="text-center py-3 px-4 font-semibold text-[#B85C38]">$1,800+</td>
+            <td class="text-center py-3 px-4 font-semibold">$3,500+</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Retainers -->
+  <section class="py-16 border-t border-[#1A1814]/10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4">Monthly plans</h2>
+    <p class="text-[#1A1814]/60 mb-8 max-w-2xl">
+      After launch, keep your site maintained, updated, and growing. Cancel anytime.
+    </p>
+    <div class="grid md:grid-cols-3 gap-6">
+      {retainers.map((plan) => (
+        <div class="border border-[#1A1814]/10 rounded-xl p-6">
+          <h3 class="text-lg font-bold">{plan.name}</h3>
+          <p class="text-2xl font-bold text-[#B85C38] mt-2">{plan.price}</p>
+          <ul class="mt-6 space-y-2">
+            {plan.features.map((f) => (
+              <li class="text-sm text-[#1A1814]/70 flex gap-2">
+                <span class="text-[#4A6741] mt-0.5">✓</span>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="py-16 border-t border-[#1A1814]/10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4">Don't just take our word for it</h2>
+    <p class="text-[#1A1814]/60 mb-8 max-w-2xl">Real results from real projects.</p>
+    <div class="grid md:grid-cols-3 gap-6">
+      <TestimonialCard
+        quote="We get calls every week from people who found us on Google. The site paid for itself in the first month."
+        name="Shira"
+        role="Founder"
+      />
+      <TestimonialCard
+        quote="Pages load instantly. Our members actually use the mobile app now without complaining about speed."
+        name="Chama Team"
+        role="Product Owner"
+      />
+      <TestimonialCard
+        quote="Fixed pricing, no surprises, and we own everything. Exactly what a small business needs."
+        name="Local Business Owner"
+        role="Upstate SC"
+      />
+    </div>
+    <div class="mt-6">
+      <a href="/work" class="text-[#B85C38] font-medium text-sm hover:underline">See all case studies &rarr;</a>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="py-16 border-t border-[#1A1814]/10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-8">How it works</h2>
+    <div class="grid md:grid-cols-5 gap-6">
+      <div>
+        <p class="text-sm font-medium text-[#B85C38] mb-1">01</p>
+        <h3 class="font-semibold mb-2">Tell us what you need</h3>
+        <p class="text-sm text-[#1A1814]/60">Fill out a <a href="/get-started" class="text-[#B85C38] hover:underline">quick form</a> about your business and project. Takes about 3 minutes.</p>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-[#B85C38] mb-1">02</p>
+        <h3 class="font-semibold mb-2">We recommend a plan</h3>
+        <p class="text-sm text-[#1A1814]/60">We review your details and get back with a recommended tier and scope within one business day.</p>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-[#B85C38] mb-1">03</p>
+        <h3 class="font-semibold mb-2">Proposal + deposit</h3>
+        <p class="text-sm text-[#1A1814]/60">You get a clear scope, timeline, and fixed price. 50% deposit to start.</p>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-[#B85C38] mb-1">04</p>
+        <h3 class="font-semibold mb-2">Build</h3>
+        <p class="text-sm text-[#1A1814]/60">We design and build your site. You get a preview link to review along the way.</p>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-[#B85C38] mb-1">05</p>
+        <h3 class="font-semibold mb-2">Launch</h3>
+        <p class="text-sm text-[#1A1814]/60">Final review, domain setup, and you're live. Remaining 50% due on approval.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Magnet -->
+  <section class="py-16 border-t border-[#1A1814]/10">
+    <LeadMagnetCTA />
+  </section>
+
+  <!-- Inline AI Chat -->
+  <section class="py-8 max-w-2xl">
+    <InlineChat
+      client:visible
+      title="Not sure which plan fits?"
+      subtitle="Ask about pricing, timelines, or what's included"
+      suggestions={["What's included in a business website?", "How long does an online store take?", "Do you offer monthly plans?"]}
+    />
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-8">
+    <NewsletterSignup source="website" heading="Stay in the loop" subtext="Web design tips, pricing updates, and digital marketing advice for small businesses." />
+  </section>
+</PublicLayout>
