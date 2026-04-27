@@ -1,0 +1,295 @@
+name: UWC Interactive Walkthrough
+
+# Dispatched by POST /api/projects/[id]/interactive-walkthrough on the admin side.
+# Rule 74 — the Playwright interactive-UX gate. Complements Rule 73 visual-diff.
+#
+# Required repo secrets:
+#   INTERACTION_WALKTHROUGH_WEBHOOK_SECRET — shared HMAC secret with admin
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: UWC project UUID
+        required: true
+      job_id:
+        description: interaction_walkthroughs row id
+        required: true
+      target_url:
+        description: Deployed URL to run the walkthrough against
+        required: true
+      journeys_json:
+        description: JSON array of journeys to execute
+        required: true
+
+jobs:
+  walkthrough:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ADMIN_URL: https://agency.upstate-web.com
+      TARGET_URL: ${{ inputs.target_url }}
+      JOURNEYS_JSON: ${{ inputs.journeys_json }}
+      JOB_ID: ${{ inputs.job_id }}
+      PROJECT_ID: ${{ inputs.project_id }}
+    steps:
+      # SHA-pinned per 2026-04-27 security audit. Resolve new SHA via:
+      #   gh api repos/actions/setup-node/commits/v4 --jq .sha
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # was @v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save playwright@^1.48.0
+          npx playwright install --with-deps chromium
+
+      - name: Write runner script
+        run: |
+          mkdir -p screenshots
+          cat > run-walkthrough.mjs <<'JSEOF'
+          import { chromium } from 'playwright'
+          import { writeFileSync } from 'fs'
+
+          const TARGET = process.env.TARGET_URL
+          const JOURNEYS = JSON.parse(process.env.JOURNEYS_JSON || '[]')
+          const MAX_SCREENSHOTS = 15
+          const STEP_TIMEOUT_MS = 20000
+
+          function absolute(u) {
+            try { return new URL(u, TARGET).toString() } catch { return TARGET }
+          }
+
+          function testValueFor(input) {
+            const name = (input.name || input.id || '').toLowerCase()
+            const type = (input.type || '').toLowerCase()
+            const tag = (input.tag || '').toLowerCase()
+            if (tag === 'select') return null
+            if (type === 'email' || /email/.test(name)) return 'walkthrough@uwc-test.invalid'
+            if (type === 'tel' || /phone|tel/.test(name)) return '555-0100'
+            if (type === 'password') return 'Uwc-Walkthrough-Test-1234!'
+            if (type === 'number') return '1'
+            if (type === 'url') return 'https://example.com'
+            if (type === 'date') {
+              const d = new Date(); d.setDate(d.getDate() + 7)
+              return d.toISOString().slice(0, 10)
+            }
+            if (/first.*name|fname/.test(name)) return 'Walk'
+            if (/last.*name|lname/.test(name)) return 'Through'
+            if (/name/.test(name)) return 'Walkthrough Tester'
+            if (/address|street/.test(name)) return '123 Test Lane'
+            if (/city/.test(name)) return 'Greenville'
+            if (/state|region/.test(name)) return 'SC'
+            if (/zip|postal/.test(name)) return '29601'
+            if (/message|note|comment|detail|desc/.test(name)) return 'Automated UWC walkthrough test.'
+            if (tag === 'textarea') return 'Automated walkthrough body content.'
+            return 'test'
+          }
+
+          async function autoFillForm(page) {
+            const inputs = await page.evaluate(() => {
+              const out = []
+              document.querySelectorAll('input, textarea, select').forEach((n) => {
+                const tag = n.tagName.toLowerCase()
+                const type = (n.type || '').toLowerCase()
+                if (type === 'hidden' || type === 'submit' || type === 'button') return
+                out.push({ tag, type, name: n.name || '', id: n.id || '' })
+              })
+              return out
+            })
+            let filled = 0
+            for (const input of inputs) {
+              try {
+                if (input.tag === 'select') {
+                  const sel = input.name ? `select[name="${input.name}"]` : input.id ? `#${input.id}` : null
+                  if (!sel) continue
+                  await page.$eval(sel, (el) => {
+                    const opts = Array.from(el.options).filter(o => o.value && !o.disabled)
+                    if (opts.length > 1) el.value = opts[1].value
+                    else if (opts.length > 0) el.value = opts[0].value
+                    el.dispatchEvent(new Event('change', { bubbles: true }))
+                  }).catch(() => {})
+                  filled += 1
+                  continue
+                }
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                  const sel = `input[type="${input.type}"]${input.name ? `[name="${input.name}"]` : ''}`
+                  await page.check(sel, { timeout: 2000 }).catch(() => {})
+                  filled += 1
+                  continue
+                }
+                const val = testValueFor(input)
+                if (val == null) continue
+                const sel = input.name ? `${input.tag}[name="${input.name}"]` : input.id ? `#${input.id}` : null
+                if (!sel) continue
+                await page.fill(sel, val, { timeout: 2000 }).catch(() => {})
+                filled += 1
+              } catch { /* best-effort */ }
+            }
+            return filled
+          }
+
+          async function captureScreenshot(page, bucket, name) {
+            if (bucket.count >= MAX_SCREENSHOTS) return null
+            const safeName = name.replace(/[^a-z0-9_.-]+/gi, '-').slice(0, 60)
+            const file = `screenshots/${String(bucket.count).padStart(2, '0')}-${safeName}.jpg`
+            await page.screenshot({ path: file, type: 'jpeg', quality: 72, fullPage: false })
+            bucket.count += 1
+            return file
+          }
+
+          async function runStep(page, step, bucket, journeyName) {
+            const start = Date.now()
+            try {
+              if (step.action === 'goto') {
+                const url = absolute(step.url || '/')
+                await page.goto(url, { timeout: STEP_TIMEOUT_MS, waitUntil: 'domcontentloaded' })
+                await page.waitForTimeout(400)
+                const file = await captureScreenshot(page, bucket, `${journeyName}-goto`)
+                const title = await page.title().catch(() => '')
+                return { success: true, observation: `navigated to ${url} — title="${title.slice(0, 80)}"`, screenshot: file }
+              }
+              if (step.action === 'click' || step.action === 'click_submit') {
+                const selectors = (step.selector || 'button[type="submit"], input[type="submit"]').split(',').map(s => s.trim()).filter(Boolean)
+                let clicked = false
+                for (const sel of selectors) {
+                  try { await page.click(sel, { timeout: 3000 }); clicked = true; break } catch { /* next */ }
+                }
+                await page.waitForTimeout(800)
+                const file = await captureScreenshot(page, bucket, `${journeyName}-click`)
+                if (!clicked) return { success: false, observation: `no element matched ${JSON.stringify(selectors)}`, screenshot: file }
+                return { success: true, observation: `clicked — url after: ${page.url()}`, screenshot: file }
+              }
+              if (step.action === 'click_nth') {
+                const sel = step.selector || 'a, button'
+                const n = Number(step.n ?? 0)
+                await page.locator(sel).nth(n).click({ timeout: 3000 })
+                await page.waitForTimeout(500)
+                const file = await captureScreenshot(page, bucket, `${journeyName}-click-nth`)
+                return { success: true, observation: `clicked ${sel} #${n} — url: ${page.url()}`, screenshot: file }
+              }
+              if (step.action === 'click_all') {
+                const sel = step.selector || 'nav a'
+                const max = Math.min(Number(step.max ?? 3), 5)
+                const startUrl = page.url()
+                const visited = []
+                for (let i = 0; i < max; i++) {
+                  try {
+                    const locator = page.locator(sel).nth(i)
+                    if ((await locator.count()) === 0) break
+                    await locator.click({ timeout: 2000 })
+                    await page.waitForTimeout(400)
+                    const file = await captureScreenshot(page, bucket, `${journeyName}-nav-${i}`)
+                    visited.push({ i, url: page.url(), screenshot: file })
+                    await page.goto(startUrl, { timeout: 5000, waitUntil: 'domcontentloaded' }).catch(() => {})
+                  } catch { /* next */ }
+                }
+                return { success: visited.length > 0, observation: `visited ${visited.length} nav links: ${JSON.stringify(visited.map(v => v.url))}` }
+              }
+              if (step.action === 'fill_form') {
+                const filled = await autoFillForm(page)
+                const file = await captureScreenshot(page, bucket, `${journeyName}-filled`)
+                return { success: filled > 0, observation: `auto-filled ${filled} form field(s)`, screenshot: file }
+              }
+              if (step.action === 'scroll') {
+                await page.evaluate(() => window.scrollBy(0, Math.max(600, window.innerHeight)))
+                await page.waitForTimeout(400)
+                const file = await captureScreenshot(page, bucket, `${journeyName}-scroll`)
+                return { success: true, observation: `scrolled`, screenshot: file }
+              }
+              return { success: false, observation: `unknown action "${step.action}"` }
+            } catch (err) {
+              const file = await captureScreenshot(page, bucket, `${journeyName}-err`).catch(() => null)
+              return { success: false, observation: `threw after ${Date.now() - start}ms: ${String(err).slice(0, 240)}`, screenshot: file }
+            }
+          }
+
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+            const page = await context.newPage()
+            const consoleErrors = []
+            page.on('pageerror', (e) => consoleErrors.push(String(e).slice(0, 240)))
+            page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text().slice(0, 240)) })
+            const results = []
+            const bucket = { count: 0 }
+            for (const journey of JOURNEYS) {
+              const journeyLog = { name: journey.name, steps: [] }
+              for (let i = 0; i < (journey.steps || []).length; i++) {
+                const res = await runStep(page, journey.steps[i], bucket, journey.name)
+                journeyLog.steps.push({ step_index: i, action: journey.steps[i].action, ...res })
+                if (bucket.count >= MAX_SCREENSHOTS && res.screenshot == null) break
+              }
+              journeyLog.console_errors = consoleErrors.splice(0)
+              results.push(journeyLog)
+            }
+            await browser.close()
+            writeFileSync('results.json', JSON.stringify(results, null, 2))
+            console.log(`Walkthrough complete: ${results.length} journeys, ${bucket.count} screenshots`)
+          })().catch((err) => {
+            console.error('Runner crashed:', err)
+            writeFileSync('results.json', JSON.stringify({ __crashed: String(err).slice(0, 500) }))
+            process.exit(1)
+          })
+          JSEOF
+
+      - name: Notify admin — running
+        # 2026-04-27 audit F3 Phase 2: send X-UWC-Ts + X-UWC-Nonce alongside
+        # the existing signature so admin can replay-reject. Sign over
+        # `${body}.${ts}.${nonce}`.
+        run: |
+          BODY=$(printf '{"job_id":"%s","status":"running"}' "$JOB_ID")
+          TS=$(($(date +%s%N) / 1000000))
+          NONCE=$(openssl rand -hex 16)
+          SIG=$(printf '%s.%s.%s' "$BODY" "$TS" "$NONCE" | openssl dgst -sha256 -hmac "${{ secrets.INTERACTION_WALKTHROUGH_WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -sS -X POST "$ADMIN_URL/api/webhooks/interactive-walkthrough" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -H "X-UWC-Ts: $TS" \
+            -H "X-UWC-Nonce: $NONCE" \
+            -d "$BODY" || true
+
+      - name: Run walkthrough
+        continue-on-error: true
+        run: node run-walkthrough.mjs
+
+      - name: Package results + screenshots
+        if: always()
+        run: |
+          python3 - <<'PYEOF'
+          import base64, glob, json, os, pathlib
+          results = None
+          if pathlib.Path('results.json').exists():
+              try: results = json.loads(open('results.json').read())
+              except Exception as e: results = { '__parse_error': str(e)[:500] }
+          shots = []
+          for f in sorted(glob.glob('screenshots/*.jpg')):
+              with open(f, 'rb') as fh:
+                  shots.append({ 'name': os.path.basename(f), 'base64': base64.b64encode(fh.read()).decode('ascii') })
+          status = 'complete'
+          if results is None: status = 'failed'
+          elif isinstance(results, dict) and '__crashed' in results: status = 'failed'
+          body = { 'job_id': os.environ['JOB_ID'], 'status': status, 'results_json': results, 'screenshots': shots }
+          if status == 'failed': body['error'] = (results or {}).get('__crashed', 'walkthrough failed')
+          with open('body.json', 'w') as fh: json.dump(body, fh)
+          print(f"Packaged status={status} shots={len(shots)}")
+          PYEOF
+
+      - name: Notify admin — result
+        # body.json is potentially multi-MB (base64 screenshots). Avoid
+        # loading into a shell var; stream from file + append `.${ts}.${nonce}`
+        # via process substitution. Signature payload byte-exact matches
+        # what admin reconstructs as `${rawBody}.${ts}.${nonce}` since
+        # rawBody == body.json contents.
+        if: always()
+        run: |
+          TS=$(($(date +%s%N) / 1000000))
+          NONCE=$(openssl rand -hex 16)
+          SIG=$( { cat body.json; printf '.%s.%s' "$TS" "$NONCE"; } | openssl dgst -sha256 -hmac "${{ secrets.INTERACTION_WALKTHROUGH_WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -sS -X POST "$ADMIN_URL/api/webhooks/interactive-walkthrough" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -H "X-UWC-Ts: $TS" \
+            -H "X-UWC-Nonce: $NONCE" \
+            --data-binary @body.json
