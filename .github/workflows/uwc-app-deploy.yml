@@ -1,0 +1,189 @@
+name: UWC App Deploy
+
+# Dispatched by POST /api/projects/[id]/provision-app-infra on the admin side.
+# Admin writes a row to app_deploy_jobs + calls workflow_dispatch with inputs.
+# This workflow runs flyctl to create (idempotently) the Fly app + Postgres
+# cluster, wires secrets, deploys, and posts back to the admin webhook so the
+# D1 job row can flip status and promote projects.production_url.
+#
+# Required repo secrets:
+#   FLY_API_TOKEN              — fine-grained, org-scoped (deploy token)
+#   FLY_DEPLOY_WEBHOOK_SECRET  — shared HMAC secret with admin
+#   ANTHROPIC_API_KEY          — per-project dedicated key (Rule 54)
+#
+# Required repo variables:
+#   FLY_ORG_NAME               — the Fly organization slug (e.g. upstate-web-co)
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: UWC project UUID
+        required: true
+      job_id:
+        description: app_deploy_jobs row id
+        required: true
+      fly_app_name:
+        description: Fly app name (lowercase, hyphens, <=30 chars)
+        required: true
+      fly_region:
+        description: Fly region code (sea, ewr, fra, etc.)
+        required: true
+        default: sea
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      ADMIN_URL: https://agency.upstate-web.com
+    steps:
+      # SHA-pinned per 2026-04-27 security audit (Trivy / tj-actions root cause
+      # was a force-pushed mutable @v* / @master ref). Resolve new SHAs via:
+      #   gh api repos/actions/checkout/commits/v4 --jq .sha
+      #   gh api repos/superfly/flyctl-actions/commits/master --jq .sha
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # was @v4
+
+      # NOTE: superfly/flyctl-actions had no stable tag as of 2026-04-27 —
+      # @master was the only published ref. Pin still beats mutable @master.
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1  # was @master
+
+      - name: Substitute fly.toml app-name placeholder
+        # P3 #18: uwc-django-template's fly.toml ships with
+        #   app = "client-PROJECT_SLUG-booking"
+        # as a placeholder. Rewrite in-place to the actual fly_app_name so
+        # `flyctl deploy` picks the right app. Idempotent — a re-run does
+        # nothing if the line already matches.
+        run: |
+          if grep -qE '^app\s*=\s*"[^"]+"' fly.toml; then
+            sed -i -E "s|^app\s*=\s*\"[^\"]+\"|app = \"${{ inputs.fly_app_name }}\"|" fly.toml
+            echo "fly.toml app = \"${{ inputs.fly_app_name }}\""
+          fi
+
+      - name: Notify admin — deploying
+        # 2026-04-27 audit F3 Phase 2: send X-UWC-Ts + X-UWC-Nonce alongside
+        # the existing X-Hub-Signature-256. Admin signs over `${body}.${ts}.${nonce}`
+        # and atomically records the nonce in portal_request_nonces (10-min TTL),
+        # rejecting replays. Admin still accepts legacy body-only sigs during
+        # rollout — flips to strict after sweep.
+        run: |
+          BODY=$(printf '{"job_id":"%s","status":"deploying"}' "${{ inputs.job_id }}")
+          TS=$(($(date +%s%N) / 1000000))
+          NONCE=$(openssl rand -hex 16)
+          SIG=$(printf '%s.%s.%s' "$BODY" "$TS" "$NONCE" | openssl dgst -sha256 -hmac "${{ secrets.FLY_DEPLOY_WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -sS -X POST "$ADMIN_URL/api/webhooks/fly-deploy" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -H "X-UWC-Ts: $TS" \
+            -H "X-UWC-Nonce: $NONCE" \
+            -d "$BODY" || true
+
+      - name: Create app if missing
+        run: |
+          # flyctl prints advisory text to stdout before the JSON output, so
+          # isolating valid JSON with jq -s '.[0]' on the first array/object.
+          # Fallback: if the list command errors or returns non-JSON, treat
+          # as absent and attempt create (which is itself idempotent — returns
+          # a "name is already taken" error we grep for).
+          EXISTS=$(flyctl apps list --json 2>/dev/null | awk '/^[\[\{]/,0' \
+            | jq -e --arg name "${{ inputs.fly_app_name }}" \
+                '.[] | select(.Name == $name)' 2>/dev/null || true)
+          if [ -z "$EXISTS" ]; then
+            flyctl apps create "${{ inputs.fly_app_name }}" --org "${{ vars.FLY_ORG_NAME }}" \
+              2>&1 | tee /tmp/create.log || grep -q "already taken" /tmp/create.log
+          else
+            echo "App ${{ inputs.fly_app_name }} already exists — skipping create"
+          fi
+
+      - name: Create + attach Postgres if missing
+        run: |
+          DB_NAME="${{ inputs.fly_app_name }}-db"
+          EXISTS=$(flyctl postgres list --json 2>/dev/null | awk '/^[\[\{]/,0' \
+            | jq -e --arg name "$DB_NAME" \
+                '.[] | select(.Name == $name)' 2>/dev/null || true)
+          if [ -z "$EXISTS" ]; then
+            flyctl postgres create \
+              --name "$DB_NAME" \
+              --region "${{ inputs.fly_region }}" \
+              --vm-size shared-cpu-1x \
+              --volume-size 1 \
+              --initial-cluster-size 1 \
+              --org "${{ vars.FLY_ORG_NAME }}" \
+              2>&1 | tee /tmp/pg.log || grep -q "already" /tmp/pg.log
+          else
+            echo "Postgres cluster $DB_NAME already exists — skipping create"
+          fi
+          # Attach is not idempotent on Fly's side (errors if already attached);
+          # swallow the error and let deploy fail later if DATABASE_URL is missing.
+          flyctl postgres attach "$DB_NAME" --app "${{ inputs.fly_app_name }}" || true
+
+      - name: Seed DJANGO_SECRET_KEY if missing
+        # Django settings.py requires DJANGO_SECRET_KEY to boot. First-time
+        # deploys failed without it (smoke test 2026-04-22: Django
+        # ImproperlyConfigured at release_command). Generate once + set via
+        # --stage so it lands on the next deploy. Idempotent: skip if already set.
+        run: |
+          EXISTS=$(flyctl secrets list --app "${{ inputs.fly_app_name }}" --json 2>/dev/null \
+            | awk '/^[\[\{]/,0' \
+            | jq -r '.[] | select(.Name == "DJANGO_SECRET_KEY") | .Name' 2>/dev/null || true)
+          if [ -z "$EXISTS" ]; then
+            KEY=$(openssl rand -hex 32)
+            flyctl secrets set DJANGO_SECRET_KEY="$KEY" --app "${{ inputs.fly_app_name }}" --stage
+            echo "DJANGO_SECRET_KEY seeded"
+          else
+            echo "DJANGO_SECRET_KEY already set — skipping"
+          fi
+
+      - name: Set additional secrets
+        # Track B6 (2026-04-26): adds DJANGO_ALLOWED_HOSTS + CORS_ALLOWED_ORIGINS.
+        # Surfaced on Evandos M8: Django returns 400 to healthchecks from
+        # `<app>.fly.dev` because the host isn't whitelisted → 5-min timeout
+        # → machine destroyed → deploy fails. Manual workaround was
+        # `flyctl secrets set DJANGO_ALLOWED_HOSTS=...` after the failure.
+        # Idempotent — re-running stages identical values, no machine restart
+        # unless deploy rolls. Apex `.fly.dev` covers Fly's internal healthcheck
+        # IPs (which use *.fly.dev hostnames) per Fly platform docs.
+        run: |
+          flyctl secrets set \
+            ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" \
+            DJANGO_ALLOWED_HOSTS="${{ inputs.fly_app_name }}.fly.dev,.fly.dev" \
+            CORS_ALLOWED_ORIGINS="https://${{ inputs.fly_app_name }}.fly.dev" \
+            --app "${{ inputs.fly_app_name }}" \
+            --stage
+
+      - name: Deploy
+        run: flyctl deploy --app "${{ inputs.fly_app_name }}" --remote-only
+
+      - name: Notify admin — complete
+        if: success()
+        run: |
+          BODY=$(printf '{"job_id":"%s","status":"complete","fly_app_name":"%s","fly_url":"https://%s.fly.dev"}' \
+            "${{ inputs.job_id }}" \
+            "${{ inputs.fly_app_name }}" \
+            "${{ inputs.fly_app_name }}")
+          TS=$(($(date +%s%N) / 1000000))
+          NONCE=$(openssl rand -hex 16)
+          SIG=$(printf '%s.%s.%s' "$BODY" "$TS" "$NONCE" | openssl dgst -sha256 -hmac "${{ secrets.FLY_DEPLOY_WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -sS -X POST "$ADMIN_URL/api/webhooks/fly-deploy" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -H "X-UWC-Ts: $TS" \
+            -H "X-UWC-Nonce: $NONCE" \
+            -d "$BODY"
+
+      - name: Notify admin — failed
+        if: failure()
+        run: |
+          ERR="deploy workflow failed — see run ${{ github.run_id }}"
+          BODY=$(printf '{"job_id":"%s","status":"failed","error":"%s"}' "${{ inputs.job_id }}" "$ERR")
+          TS=$(($(date +%s%N) / 1000000))
+          NONCE=$(openssl rand -hex 16)
+          SIG=$(printf '%s.%s.%s' "$BODY" "$TS" "$NONCE" | openssl dgst -sha256 -hmac "${{ secrets.FLY_DEPLOY_WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -sS -X POST "$ADMIN_URL/api/webhooks/fly-deploy" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -H "X-UWC-Ts: $TS" \
+            -H "X-UWC-Nonce: $NONCE" \
+            -d "$BODY" || true
