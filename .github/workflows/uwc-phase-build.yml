@@ -1,0 +1,181 @@
+name: UWC Phase Build
+
+# Canonical copy lives in uwc-agency-admin/templates/client-repo-workflows/
+# Copy this file to .github/workflows/uwc-phase-build.yml in each client repo
+# as part of skill-new-project-setup.md. Admin dispatches this via:
+#   POST /repos/{owner}/{repo}/actions/workflows/uwc-phase-build.yml/dispatches
+#
+# Required repo secrets:
+#   ANTHROPIC_API_KEY — per-project key per CLAUDE.md Rule 54
+#
+# Required UWC admin env vars to trigger from:
+#   GITHUB_APP_TOKEN    — PAT or App token with actions:write + pull-requests:write
+#   GITHUB_WEBHOOK_SECRET — HMAC secret configured on the repo's webhook → admin
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        required: true
+        description: UWC project UUID
+      phase:
+        required: true
+        description: Phase slug (discovery|design|build|review|launch|maintenance) or m{n}_{name} for app milestones
+      prompt:
+        required: true
+        description: Pre-generated Claude Code prompt
+      job_id:
+        required: true
+        description: phase_build_jobs.id — echoed in PR body for webhook correlation
+      claude_args:
+        required: false
+        description: |
+          Optional. Per-milestone routing string passed to anthropics/claude-code-action
+          (e.g. "--max-turns 60 --model claude-opus-4-7 --dangerously-skip-permissions").
+          Admin computes this via src/lib/milestone-routing.ts. When empty, falls back to
+          the prior global default below. Track B2 (2026-04-26).
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write  # required by anthropics/claude-code-action for OIDC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # 60-minute wall-clock ceiling. Was 30 min until 2026-04-26 when Evandos
+    # M7 production_readiness hit it (Sonnet was working at ~2-3s/turn × 100+
+    # turns = >30 min). Workflow B's partial-work preservation kicked in but
+    # the cancellation surfaced as a separate failure mode worth raising the
+    # ceiling for. Larger milestones (M3 backend + M5 frontend + M6 integration)
+    # routinely run 11-21 min, so 60 gives comfortable headroom without runaway.
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repo
+        # SHA-pinned per 2026-04-27 security audit (Trivy / tj-actions/changed-files
+        # CVE-2025-30066 root cause was a force-pushed mutable @v* tag). When
+        # bumping, resolve the new SHA via:
+        #   gh api repos/actions/checkout/commits/v4 --jq .sha
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # was @v4
+        with:
+          fetch-depth: 0
+
+      - name: Create feature branch
+        run: |
+          # Slug-safe phase: replace anything that's not [a-zA-Z0-9._-] with '-',
+          # collapse runs of '-'. Defense against phase labels that slipped through
+          # with spaces or punctuation (git branch refs reject most of these).
+          PHASE_SAFE="$(printf '%s' "${{ inputs.phase }}" | tr -c 'a-zA-Z0-9._-' '-' | tr -s '-' | sed 's/^-//; s/-$//')"
+          BRANCH="uwc-phase-${PHASE_SAFE}-${{ inputs.job_id }}"
+          git config user.name "uwc-claude-code[bot]"
+          git config user.email "uwc-claude-code@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - name: Run Claude Code headless
+        id: claude
+        continue-on-error: true
+        # SHA-pinned per 2026-04-27 security audit. claude-code-action runs
+        # with ANTHROPIC_API_KEY + repo write access — a compromise of the
+        # @v1 tag would steer codegen across every UWC client repo. Resolve
+        # new SHA via: gh api repos/anthropics/claude-code-action/commits/v1
+        uses: anthropics/claude-code-action@567fe954a4527e81f132d87d1bdbcc94f7737434  # was @v1
+        with:
+          prompt: ${{ inputs.prompt }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude_args is per-milestone-routed by admin
+          # (src/lib/milestone-routing.ts). Falls back to the prior global
+          # default below when admin omits the input — that keeps older
+          # admin deploys + manual re-dispatches working unchanged.
+          # Default rationale: 150 turns covers heaviest milestones (M2
+          # backend_foundation, M3 api_layer) ~7 Django apps × ~15 turns/app.
+          # continue-on-error + if: always() on the commit step below means
+          # partial work still pushes if Claude hits the budget.
+          claude_args: ${{ inputs.claude_args || '--max-turns 150 --model claude-sonnet-4-6 --dangerously-skip-permissions' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          UWC_JOB_ID: ${{ inputs.job_id }}
+          UWC_PROJECT_ID: ${{ inputs.project_id }}
+          UWC_PHASE: ${{ inputs.phase }}
+
+      - name: Commit + push branch (preserves partial work even on Claude failure)
+        if: always()
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLAUDE_OUTCOME: ${{ steps.claude.outcome }}
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "no_changes=true" >> $GITHUB_OUTPUT
+            echo "Claude produced no file changes — skipping PR"
+            exit 0
+          fi
+          # claude-code-action's OIDC step may clear the checkout-persisted
+          # credentials, so re-auth the origin remote with the job's token.
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git add -A
+          # If Claude failed (e.g. max-turns), tag the commit message so
+          # admin can tell at a glance this is partial work, not a full
+          # finished deliverable.
+          if [[ "$CLAUDE_OUTCOME" != "success" ]]; then
+            COMMIT_MSG="UWC phase build (PARTIAL — claude $CLAUDE_OUTCOME) — ${{ inputs.phase }} (job ${{ inputs.job_id }})"
+          else
+            COMMIT_MSG="UWC phase build — ${{ inputs.phase }} (job ${{ inputs.job_id }})"
+          fi
+          git commit -m "$COMMIT_MSG"
+          git push origin "$BRANCH"
+          echo "claude_outcome=$CLAUDE_OUTCOME" >> $GITHUB_OUTPUT
+
+      - name: Open pull request
+        if: always() && steps.commit.outputs.no_changes != 'true' && steps.commit.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLAUDE_OUTCOME: ${{ steps.claude.outcome }}
+        run: |
+          if [[ "$CLAUDE_OUTCOME" != "success" ]]; then
+            TITLE="UWC phase build (PARTIAL) — ${{ inputs.phase }}"
+            EXTRA_BODY="
+
+          ⚠️ **Claude Code exited with status: $CLAUDE_OUTCOME** (likely max-turns or rate-limit). This PR captures the partial work that was committed. Admin should review and either merge as-is, redispatch to continue, or close + retry."
+          else
+            TITLE="UWC phase build — ${{ inputs.phase }}"
+            EXTRA_BODY=""
+          fi
+          gh pr create \
+            --title "$TITLE" \
+            --body "Auto-generated by UWC admin.
+
+          UWC phase build job: ${{ inputs.job_id }}
+          Project: ${{ inputs.project_id }}
+          Phase: ${{ inputs.phase }}
+
+          Review the diff, merge to advance the pipeline.$EXTRA_BODY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH"
+
+      - name: Re-fail if Claude failed (so workflow_run conclusion=failure surfaces in admin)
+        if: always() && steps.claude.outcome != 'success'
+        run: |
+          echo "Claude Code step exited with: ${{ steps.claude.outcome }}"
+          echo "Partial work pushed (if any) so admin can review or continue."
+          exit 1
+
+      - name: Re-fail if Claude produced zero source changes (empty-PR detection — Track B3)
+        # Track B3 (2026-04-26): the Car Wash review-phase dispatch (run
+        # 24965984712) ran 57 turns + cost $2.06 and produced no source
+        # changes. Claude's outcome=success but commit step's
+        # `git status --porcelain` was empty → "Open PR" step skipped →
+        # workflow_run conclusion=success → admin's webhook saw zero signal.
+        # This step closes the silent-success-on-empty gap by failing the
+        # workflow when the commit step set no_changes=true.
+        # Combined with PR #79's workflow_run_id correlation (Rule 64), the
+        # webhook handler now flips phase_build_jobs.status='failed' with
+        # error='claude produced no source changes' instead of leaving the
+        # row at 'dispatched' indefinitely.
+        if: always() && steps.commit.outputs.no_changes == 'true'
+        run: |
+          echo "Claude exited successfully but produced zero file changes."
+          echo "Previously this surfaced as workflow_run conclusion=success — masking failure."
+          echo "Admin should redispatch with more context or investigate the prompt."
+          exit 1
