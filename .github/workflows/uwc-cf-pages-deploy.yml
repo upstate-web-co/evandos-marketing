@@ -1,0 +1,65 @@
+name: UWC CF Pages Deploy
+
+# Push-to-main → build → wrangler pages deploy. Bypasses CF Pages'
+# GitHub-integration auto-link (which requires a one-time per-repo
+# CF dashboard authorization that errored 8000012 on the Car Wash
+# launch). Once the workflow file + 2 secrets + 1 variable are
+# installed by admin's headless-setup, deploys are zero-touch from
+# the admin side: every push to main produces a fresh CF Pages
+# production deploy.
+#
+# Required repo secrets:
+#   CLOUDFLARE_API_TOKEN  — Pages:Edit scope (shared from admin's CF_API_TOKEN)
+#   CLOUDFLARE_ACCOUNT_ID — admin's CF_ACCOUNT_ID (shared)
+#
+# Required repo variables:
+#   CF_PAGES_PROJECT_NAME — the CF Pages project slug (e.g. the-car-wash-website)
+#                           Set to projects.cloudflare_project_id when known;
+#                           usually identical to repo slug for new projects.
+#
+# Build assumptions:
+#   - Astro project with `npm run build` producing `dist/`
+#   - Node 20 (matches admin + portal + all UWC website templates)
+#
+# This workflow is website-only. Apps deploy via uwc-app-deploy.yml
+# (Fly.io). Track B5 (2026-04-26).
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # SHA-pinned per 2026-04-27 security audit. Resolve new SHAs via:
+      #   gh api repos/actions/checkout/commits/v4 --jq .sha
+      #   gh api repos/actions/setup-node/commits/v4 --jq .sha
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # was @v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # was @v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        # SHA-pinned per 2026-04-27 security audit. wrangler-action runs with
+        # CLOUDFLARE_API_TOKEN — a compromise of @v3 would let an attacker
+        # deploy arbitrary content to every UWC CF Pages project. Resolve via:
+        #   gh api repos/cloudflare/wrangler-action/commits/v3 --jq .sha
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd  # was @v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CF_PAGES_PROJECT_NAME }} --branch=main
